@@ -9,6 +9,7 @@ import {
   showTestPreparation,
   startTest,
 } from "../features/invatat/training.js";
+import { showPersonalReportStats } from "../features/rapoarte/reportsPanel.js";
 import { handleTransportEditSubmit, showTransportEditModal } from "../features/transport/editTransport.js";
 import { handleTransportSubmit, showTransportModal } from "../features/transport/transport.js";
 import { handleVizitaEditSubmit, showVizitaEditModal } from "../features/vizite/editVizita.js";
@@ -59,6 +60,11 @@ export async function handleInteractionCreate(interaction: Interaction): Promise
 
       if (interaction.customId === ids.carceraReject) {
         await handleCarceraDecision(interaction, "respins");
+        return;
+      }
+
+      if (interaction.customId === ids.reportsStatusButton) {
+        await showPersonalReportStats(interaction);
         return;
       }
 
