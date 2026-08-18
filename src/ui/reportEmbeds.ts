@@ -1,11 +1,17 @@
 import { EmbedBuilder } from "discord.js";
 
-function baseReport(title: string, color: number, gradeName: string, memberId: string): EmbedBuilder {
+function baseReport(
+  title: string,
+  color: number,
+  gradeName: string,
+  memberId: string,
+  timestamp?: Date,
+): EmbedBuilder {
   return new EmbedBuilder()
     .setColor(color)
     .setTitle(title)
     .setDescription(`**${gradeName}**  |  <@${memberId}>`)
-    .setTimestamp();
+    .setTimestamp(timestamp ?? new Date());
 }
 
 export function createTransportEmbed(options: {
@@ -14,8 +20,9 @@ export function createTransportEmbed(options: {
   agents: string;
   pickup: string;
   detainee: string;
+  timestamp?: Date;
 }): EmbedBuilder {
-  return baseReport("🚓 Transport penitenciar", 0x3b82f6, options.gradeName, options.memberId)
+  return baseReport("🚓 Transport penitenciar", 0x3b82f6, options.gradeName, options.memberId, options.timestamp)
     .addFields(
       { name: "Agent responsabil", value: options.agents },
       { name: "Preluat de la", value: options.pickup, inline: true },
@@ -31,8 +38,9 @@ export function createVizitaEmbed(options: {
   agents: string;
   detainee: string;
   dateTime: string;
+  timestamp?: Date;
 }): EmbedBuilder {
-  return baseReport("👀 Vizita detinut", 0x8b5cf6, options.gradeName, options.memberId)
+  return baseReport("👀 Vizita detinut", 0x8b5cf6, options.gradeName, options.memberId, options.timestamp)
     .addFields(
       { name: "Nume vizitator", value: options.visitor, inline: true },
       { name: "Nume detinut", value: options.detainee, inline: true },
@@ -48,8 +56,9 @@ export function createCarceraEmbed(options: {
   detainee: string;
   months: string;
   reason: string;
+  timestamp?: Date;
 }): EmbedBuilder {
-  return baseReport("⛓️ Prelungire carcera", 0xf59e0b, options.gradeName, options.memberId)
+  return baseReport("⛓️ Prelungire carcera", 0xf59e0b, options.gradeName, options.memberId, options.timestamp)
     .addFields(
       { name: "Agent responsabil", value: `<@${options.memberId}>` },
       { name: "Detinut", value: options.detainee, inline: true },
