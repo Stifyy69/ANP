@@ -5,7 +5,7 @@ import { getGradeRole } from "../../services/gradeService.js";
 
 type MentionTarget =
   | { type: "user"; id: string }
-  | { type: "role"; id: string; name: string };
+  | { type: "role"; id: string };
 
 function getMentionTargetsInOrder(message: Message<true>): MentionTarget[] {
   const targets: MentionTarget[] = [];
@@ -38,7 +38,7 @@ function getMentionTargetsInOrder(message: Message<true>): MentionTarget[] {
     }
 
     seenRoles.add(roleId);
-    targets.push({ type: "role", id: roleId, name: role.name });
+    targets.push({ type: "role", id: roleId });
   }
 
   return targets;
@@ -65,13 +65,16 @@ export async function handleChatIcMessage(message: Message): Promise<void> {
   const mentionedUserIds = mentionTargets
     .filter((target): target is Extract<MentionTarget, { type: "user" }> => target.type === "user")
     .map((target) => target.id);
+  const mentionedRoleIds = mentionTargets
+    .filter((target): target is Extract<MentionTarget, { type: "role" }> => target.type === "role")
+    .map((target) => target.id);
   const text = sanitizeIcMessage(message) || "...";
   const authorMention = `**<@${message.author.id}>**`;
   const gradeMention = `**<@&${grade.id}>**`;
   const mentionText = mentionTargets
     .map((target) => target.type === "user"
       ? `**<@${target.id}>**`
-      : `**@\u200b${target.name}**`)
+      : `**<@&${target.id}>**`)
     .join(" ");
 
   const content = mentionTargets.length > 0
@@ -92,7 +95,7 @@ export async function handleChatIcMessage(message: Message): Promise<void> {
     content,
     allowedMentions: {
       parse: [],
-      roles: [grade.id],
+      roles: [...new Set([grade.id, ...mentionedRoleIds])],
       users: [message.author.id, ...mentionedUserIds],
       repliedUser: false,
     },
