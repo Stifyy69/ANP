@@ -14,6 +14,7 @@ import { sendEditLog } from "../../services/logService.js";
 import {
   getMessageIdFromModal,
   getReportCreatorId,
+  getReportDossierId,
   getReportField,
   getReportTimestamp,
   messageHasButton,
@@ -131,6 +132,7 @@ export async function handleCarceraEditSubmit(interaction: ModalSubmitInteractio
   const months = sanitizeFormText(interaction.fields.getTextInputValue(ids.carceraMonths));
   const reason = sanitizeFormText(interaction.fields.getTextInputValue(ids.carceraReason));
   const embed = createCarceraEmbed({
+    dossierId: getReportDossierId(report) ?? undefined,
     gradeName: grade.name,
     memberId: member.id,
     detainee,
@@ -149,5 +151,5 @@ export async function handleCarceraEditSubmit(interaction: ModalSubmitInteractio
   });
 
   await sendEditLog(interaction.client, "carcera", member, channel.id, report.url);
-  await interaction.editReply("Prelungirea a fost modificata.");
+  await interaction.editReply("Dosarul disciplinar a fost modificat.");
 }
