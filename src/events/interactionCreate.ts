@@ -1,10 +1,15 @@
 import { MessageFlags, type Interaction } from "discord.js";
+import { env } from "../config/env.js";
 import { handleCarceraSubmit, showCarceraModal } from "../features/carcera/carcera.js";
 import { handleTransportSubmit, showTransportModal } from "../features/transport/transport.js";
 import { handleVizitaSubmit, showVizitaModal } from "../features/vizite/vizite.js";
 import { ids } from "../ui/ids.js";
 
 export async function handleInteractionCreate(interaction: Interaction): Promise<void> {
+  if (interaction.guildId !== env.guildId) {
+    return;
+  }
+
   try {
     if (interaction.isButton()) {
       if (interaction.customId === ids.transportButton) {
