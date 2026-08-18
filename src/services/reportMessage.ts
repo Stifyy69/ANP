@@ -32,7 +32,9 @@ export function getReportField(message: Message, fieldName: string): string | nu
 }
 
 export function getMentionIds(text: string): string[] {
-  return [...text.matchAll(/<@!?(\d+)>/g)].map((match) => match[1]);
+  return [...text.matchAll(/<@!?(\d+)>/g)]
+    .map((match) => match[1])
+    .filter((id): id is string => id !== undefined);
 }
 
 export function getReportTimestamp(message: Message): Date | undefined {
