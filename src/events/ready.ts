@@ -1,6 +1,8 @@
 import type { Client } from "discord.js";
 import { env } from "../config/env.js";
+import { initDatabase } from "../database/database.js";
 import { ensureInvatatPanel } from "../features/invatat/panel.js";
+import { ensureReportsPanel } from "../features/rapoarte/reportsPanel.js";
 import { ensurePanels } from "../ui/panels.js";
 
 export async function handleReady(client: Client<true>): Promise<void> {
@@ -12,7 +14,11 @@ export async function handleReady(client: Client<true>): Promise<void> {
 
   console.log(`Bot conectat ca ${client.user.tag} pe ${guild.name}.`);
 
+  // Pregatim tabelele inainte sa pornim panourile care citesc statistici.
+  await initDatabase();
+
   // La restart verificam daca panourile principale mai exista.
   await ensurePanels(client);
   await ensureInvatatPanel(client);
+  await ensureReportsPanel(client);
 }

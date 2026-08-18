@@ -26,6 +26,8 @@ export const ids = {
   carceraApprove: "anp:carcera:approve",
   carceraReject: "anp:carcera:reject",
 
+  reportsStatusButton: "anp:rapoarte:status",
+
   invatatStartButton: "anp:invatat:start",
   invatatConfirmReadButton: "anp:invatat:confirm-read",
   invatatAnswerButtonPrefix: "anp:invatat:answer:",

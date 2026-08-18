@@ -7,6 +7,12 @@ import {
   type ModalSubmitInteraction,
 } from "discord.js";
 import { env } from "../../config/env.js";
+import {
+  formatDossierId,
+  nextDossierNumber,
+  registerReport,
+} from "../../database/database.js";
+import { ensureReportsPanel } from "../rapoarte/reportsPanel.js";
 import { sanitizeFormText } from "../../services/discordText.js";
 import { getGradeRole } from "../../services/gradeService.js";
 import { sendActionLog } from "../../services/logService.js";
@@ -97,9 +103,21 @@ export async function handleTransportSubmit(interaction: ModalSubmitInteraction)
     return;
   }
 
+  let dossierNumber: number;
+
+  try {
+    dossierNumber = await nextDossierNumber("transport");
+  } catch (error) {
+    console.error("Nu am putut genera dosarul de transport:", error);
+    await interaction.editReply("Registrul ANP nu este disponibil momentan. Transportul nu a fost inregistrat.");
+    return;
+  }
+
+  const dossierId = formatDossierId("transport", dossierNumber);
   const agents = [`<@${member.id}>`, secondary ? `<@${secondary.id}>` : null].filter(Boolean).join("  ");
   const allowedUsers = [member.id, secondary?.id].filter((id): id is string => Boolean(id));
   const embed = createTransportEmbed({
+    dossierId,
     gradeName: grade.name,
     memberId: member.id,
     agents,
@@ -107,7 +125,7 @@ export async function handleTransportSubmit(interaction: ModalSubmitInteraction)
     detainee,
   });
 
-  await channel.send({
+  const report = await channel.send({
     embeds: [embed],
     components: [createEditRow(ids.transportEditButton)],
     allowedMentions: {
@@ -116,6 +134,25 @@ export async function handleTransportSubmit(interaction: ModalSubmitInteraction)
     },
   });
 
+  try {
+    await registerReport({
+      messageId: report.id,
+      reportType: "transport",
+      dossierNumber,
+      primaryUserId: member.id,
+      secondaryUserId: secondary && !secondary.user.bot ? secondary.id : null,
+      approved: true,
+    });
+  } catch (error) {
+    console.error("Nu am putut arhiva transportul in baza de date:", error);
+    await report.delete().catch(() => null);
+    await interaction.editReply("Transportul nu a putut fi arhivat in registrul ANP.");
+    return;
+  }
+
+  await ensureReportsPanel(interaction.client).catch((error) => {
+    console.error("Nu am putut actualiza panoul de rapoarte:", error);
+  });
   await sendActionLog(interaction.client, "transport", member, channel.id);
-  await interaction.editReply("Transportul a fost creat.");
+  await interaction.editReply(`Transportul a fost inregistrat in dosarul **${dossierId}**.`);
 }

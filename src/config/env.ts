@@ -23,6 +23,7 @@ function getRoleIds(name: string): string[] {
 
 export const env = {
   discordToken: getRequiredEnv("DISCORD_TOKEN"),
+  databaseUrl: getRequiredEnv("DATABASE_URL"),
   guildId: getRequiredEnv("GUILD_ID"),
   chatIcChannelId: getRequiredEnv("CHAT_IC_CHANNEL_ID"),
   receptieChannelId: getRequiredEnv("RECEPTIE_CHANNEL_ID"),
@@ -30,6 +31,7 @@ export const env = {
   transportChannelId: getRequiredEnv("TRANSPORT_CHANNEL_ID"),
   viziteChannelId: getRequiredEnv("VIZITE_CHANNEL_ID"),
   carceraChannelId: getRequiredEnv("CARCERA_CHANNEL_ID"),
+  reportsChannelId: getRequiredEnv("RAPOARTE_CHANNEL_ID"),
   logsChannelId: getRequiredEnv("LOGS_CHANNEL_ID"),
 
   // Ordinea rolurilor conteaza. Primul grad gasit este folosit de bot.

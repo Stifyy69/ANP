@@ -27,6 +27,11 @@ export function getReportCreatorId(message: Message): string | null {
   return description.match(/<@!?(\d+)>/)?.[1] ?? null;
 }
 
+export function getReportDossierId(message: Message): string | null {
+  const title = message.embeds[0]?.title ?? "";
+  return title.match(/\b([TVC]-\d+)\b/)?.[1] ?? null;
+}
+
 export function getReportField(message: Message, fieldName: string): string | null {
   return message.embeds[0]?.fields.find((field) => field.name === fieldName)?.value ?? null;
 }

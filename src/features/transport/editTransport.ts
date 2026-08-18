@@ -7,6 +7,8 @@ import {
   type ModalSubmitInteraction,
 } from "discord.js";
 import { env } from "../../config/env.js";
+import { updateReportParticipants } from "../../database/database.js";
+import { ensureReportsPanel } from "../rapoarte/reportsPanel.js";
 import { sanitizeFormText } from "../../services/discordText.js";
 import { getGradeRole } from "../../services/gradeService.js";
 import { sendEditLog } from "../../services/logService.js";
@@ -14,6 +16,7 @@ import {
   getMentionIds,
   getMessageIdFromModal,
   getReportCreatorId,
+  getReportDossierId,
   getReportField,
   getReportTimestamp,
 } from "../../services/reportMessage.js";
@@ -132,6 +135,7 @@ export async function handleTransportEditSubmit(interaction: ModalSubmitInteract
   const agents = [`<@${member.id}>`, secondary ? `<@${secondary.id}>` : null].filter(Boolean).join("  ");
   const allowedUsers = [member.id, secondary?.id].filter((id): id is string => Boolean(id));
   const embed = createTransportEmbed({
+    dossierId: getReportDossierId(report) ?? undefined,
     gradeName: grade.name,
     memberId: member.id,
     agents,
@@ -149,6 +153,14 @@ export async function handleTransportEditSubmit(interaction: ModalSubmitInteract
     },
   });
 
+  await updateReportParticipants(
+    report.id,
+    member.id,
+    secondary && !secondary.user.bot ? secondary.id : null,
+  );
+  await ensureReportsPanel(interaction.client).catch((error) => {
+    console.error("Nu am putut actualiza panoul de rapoarte:", error);
+  });
   await sendEditLog(interaction.client, "transport", member, channel.id, report.url);
-  await interaction.editReply("Transportul a fost modificat.");
+  await interaction.editReply("Transportul a fost modificat si evidenta a fost actualizata.");
 }
