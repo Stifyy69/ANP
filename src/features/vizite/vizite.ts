@@ -12,6 +12,7 @@ import { getGradeRole } from "../../services/gradeService.js";
 import { sendActionLog } from "../../services/logService.js";
 import { ids } from "../../ui/ids.js";
 import { createTextField, createUserField } from "../../ui/modalFields.js";
+import { createEditRow } from "../../ui/reportButtons.js";
 import { createVizitaEmbed } from "../../ui/reportEmbeds.js";
 
 async function getMember(interaction: ButtonInteraction | ModalSubmitInteraction): Promise<GuildMember | null> {
@@ -115,6 +116,7 @@ export async function handleVizitaSubmit(interaction: ModalSubmitInteraction): P
 
   await channel.send({
     embeds: [embed],
+    components: [createEditRow(ids.vizitaEditButton)],
     allowedMentions: {
       parse: [],
       users: allowedUsers,
