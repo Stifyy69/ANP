@@ -3,6 +3,14 @@ import { env } from "../config/env.js";
 import { handleCarceraDecision } from "../features/carcera/approval.js";
 import { handleCarceraSubmit, showCarceraModal } from "../features/carcera/carcera.js";
 import { handleCarceraEditSubmit, showCarceraEditModal } from "../features/carcera/editCarcera.js";
+import {
+  handleTestAnswer,
+  showAnswerModal,
+  showLearning,
+  showLearningPage,
+  showTestPreparation,
+  startTest,
+} from "../features/invatat/training.js";
 import { handleTransportEditSubmit, showTransportEditModal } from "../features/transport/editTransport.js";
 import { handleTransportSubmit, showTransportModal } from "../features/transport/transport.js";
 import { handleVizitaEditSubmit, showVizitaEditModal } from "../features/vizite/editVizita.js";
@@ -53,6 +61,31 @@ export async function handleInteractionCreate(interaction: Interaction): Promise
 
       if (interaction.customId === ids.carceraReject) {
         await handleCarceraDecision(interaction, "respins");
+        return;
+      }
+
+      if (interaction.customId === ids.invatatLearnButton) {
+        await showLearning(interaction);
+        return;
+      }
+
+      if (interaction.customId.startsWith(ids.invatatLessonPrefix)) {
+        await showLearningPage(interaction);
+        return;
+      }
+
+      if (interaction.customId === ids.invatatStartButton) {
+        await showTestPreparation(interaction);
+        return;
+      }
+
+      if (interaction.customId === ids.invatatConfirmReadButton) {
+        await startTest(interaction);
+        return;
+      }
+
+      if (interaction.customId.startsWith(ids.invatatAnswerButtonPrefix)) {
+        await showAnswerModal(interaction);
       }
 
       return;
@@ -86,6 +119,11 @@ export async function handleInteractionCreate(interaction: Interaction): Promise
 
       if (interaction.customId.startsWith(ids.carceraEditModalPrefix)) {
         await handleCarceraEditSubmit(interaction);
+        return;
+      }
+
+      if (interaction.customId.startsWith(ids.invatatAnswerModalPrefix)) {
+        await handleTestAnswer(interaction);
       }
     }
   } catch (error) {
