@@ -1,7 +1,5 @@
-import pg from "pg";
+import { Pool } from "pg";
 import { env } from "../config/env.js";
-
-const { Pool } = pg;
 
 export type ReportType = "transport" | "vizita" | "carcera";
 
@@ -121,13 +119,13 @@ export async function updateReportParticipants(
   `, [messageId, primaryUserId, secondaryUserId ?? null]);
 }
 
-export async function approveCarceraReport(messageId: string): Promise<void> {
+export async function setCarceraApproval(messageId: string, approved: boolean): Promise<void> {
   await pool.query(`
     UPDATE anp_reports
-    SET approved = TRUE,
+    SET approved = $2,
         updated_at = NOW()
     WHERE message_id = $1 AND report_type = 'carcera'
-  `, [messageId]);
+  `, [messageId, approved]);
 }
 
 const statsQuery = `
