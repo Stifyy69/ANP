@@ -141,8 +141,9 @@ export async function handleVizitaEditSubmit(interaction: ModalSubmitInteraction
   const dateTime = sanitizeFormText(interaction.fields.getTextInputValue(ids.vizitaDateTime));
   const agents = [`<@${member.id}>`, secondary ? `<@${secondary.id}>` : null].filter(Boolean).join("  ");
   const allowedUsers = [member.id, secondary?.id].filter((id): id is string => Boolean(id));
+  const dossierId = getReportDossierId(report) ?? undefined;
   const embed = createVizitaEmbed({
-    dossierId: getReportDossierId(report) ?? undefined,
+    dossierId,
     gradeName: grade.name,
     memberId: member.id,
     visitor,
@@ -169,6 +170,6 @@ export async function handleVizitaEditSubmit(interaction: ModalSubmitInteraction
   await ensureReportsPanel(interaction.client).catch((error) => {
     console.error("Nu am putut actualiza panoul de rapoarte:", error);
   });
-  await sendEditLog(interaction.client, "vizita", member, channel.id, report.url);
+  await sendEditLog(interaction.client, "vizita", member, channel.id, dossierId, report.url);
   await interaction.editReply("Vizita a fost modificata si evidenta a fost actualizata.");
 }

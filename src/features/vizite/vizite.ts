@@ -160,6 +160,6 @@ export async function handleVizitaSubmit(interaction: ModalSubmitInteraction): P
   await ensureReportsPanel(interaction.client).catch((error) => {
     console.error("Nu am putut actualiza panoul de rapoarte:", error);
   });
-  await sendActionLog(interaction.client, "vizita", member, channel.id);
+  await sendActionLog(interaction.client, "vizita", member, channel.id, dossierId, report.url);
   await interaction.editReply(`Vizita a fost inregistrata in registrul **${dossierId}**.`);
 }

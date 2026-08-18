@@ -130,6 +130,6 @@ export async function handleCarceraSubmit(interaction: ModalSubmitInteraction): 
     return;
   }
 
-  await sendActionLog(interaction.client, "carcera", member, channel.id);
+  await sendActionLog(interaction.client, "carcera", member, channel.id, dossierId, report.url);
   await interaction.editReply(`Dosarul disciplinar **${dossierId}** a fost inaintat spre aprobare.`);
 }

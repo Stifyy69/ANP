@@ -134,8 +134,9 @@ export async function handleTransportEditSubmit(interaction: ModalSubmitInteract
   const detainee = sanitizeFormText(interaction.fields.getTextInputValue(ids.transportDetainee));
   const agents = [`<@${member.id}>`, secondary ? `<@${secondary.id}>` : null].filter(Boolean).join("  ");
   const allowedUsers = [member.id, secondary?.id].filter((id): id is string => Boolean(id));
+  const dossierId = getReportDossierId(report) ?? undefined;
   const embed = createTransportEmbed({
-    dossierId: getReportDossierId(report) ?? undefined,
+    dossierId,
     gradeName: grade.name,
     memberId: member.id,
     agents,
@@ -161,6 +162,6 @@ export async function handleTransportEditSubmit(interaction: ModalSubmitInteract
   await ensureReportsPanel(interaction.client).catch((error) => {
     console.error("Nu am putut actualiza panoul de rapoarte:", error);
   });
-  await sendEditLog(interaction.client, "transport", member, channel.id, report.url);
+  await sendEditLog(interaction.client, "transport", member, channel.id, dossierId, report.url);
   await interaction.editReply("Transportul a fost modificat si evidenta a fost actualizata.");
 }

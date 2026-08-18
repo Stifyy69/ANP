@@ -3,6 +3,12 @@ import { env } from "../config/env.js";
 
 export type ReportType = "transport" | "vizita" | "carcera";
 
+export type StatsPeriod =
+  | { type: "current_week" }
+  | { type: "week"; year: number; week: number }
+  | { type: "month"; year: number; month: number }
+  | { type: "alltime" };
+
 export type AgentStats = {
   userId: string;
   transporturi: number;
@@ -12,6 +18,15 @@ export type AgentStats = {
   rank?: number;
 };
 
+export type CurrentWeekInfo = {
+  year: number;
+  week: number;
+  startDate: string;
+  endDate: string;
+};
+
+const REPORT_TIMEZONE = "Europe/Bucharest";
+
 const pool = new Pool({
   connectionString: env.databaseUrl,
   max: 5,
@@ -19,6 +34,74 @@ const pool = new Pool({
 
 function toNumber(value: unknown): number {
   return Number(value ?? 0);
+}
+
+function getPeriodFilter(period: StatsPeriod): { sql: string; params: Array<number> } {
+  if (period.type === "current_week") {
+    return {
+      sql: `
+        AND (created_at AT TIME ZONE '${REPORT_TIMEZONE}') >= date_trunc('week', NOW() AT TIME ZONE '${REPORT_TIMEZONE}')
+        AND (created_at AT TIME ZONE '${REPORT_TIMEZONE}') < date_trunc('week', NOW() AT TIME ZONE '${REPORT_TIMEZONE}') + INTERVAL '7 days'
+      `,
+      params: [],
+    };
+  }
+
+  if (period.type === "week") {
+    return {
+      sql: `
+        AND (created_at AT TIME ZONE '${REPORT_TIMEZONE}') >= to_date($1::text || '-' || lpad($2::text, 2, '0') || '-1', 'IYYY-IW-ID')::timestamp
+        AND (created_at AT TIME ZONE '${REPORT_TIMEZONE}') < to_date($1::text || '-' || lpad($2::text, 2, '0') || '-1', 'IYYY-IW-ID')::timestamp + INTERVAL '7 days'
+      `,
+      params: [period.year, period.week],
+    };
+  }
+
+  if (period.type === "month") {
+    return {
+      sql: `
+        AND (created_at AT TIME ZONE '${REPORT_TIMEZONE}') >= make_date($1, $2, 1)::timestamp
+        AND (created_at AT TIME ZONE '${REPORT_TIMEZONE}') < make_date($1, $2, 1)::timestamp + INTERVAL '1 month'
+      `,
+      params: [period.year, period.month],
+    };
+  }
+
+  return { sql: "", params: [] };
+}
+
+function buildStatsQuery(period: StatsPeriod): { sql: string; params: Array<number> } {
+  const filter = getPeriodFilter(period);
+
+  return {
+    sql: `
+      WITH rapoarte_filtrate AS (
+        SELECT report_type, primary_user_id, secondary_user_id
+        FROM anp_reports
+        WHERE approved = TRUE
+        ${filter.sql}
+      ), participari AS (
+        SELECT primary_user_id AS user_id, report_type
+        FROM rapoarte_filtrate
+
+        UNION ALL
+
+        SELECT secondary_user_id AS user_id, report_type
+        FROM rapoarte_filtrate
+        WHERE secondary_user_id IS NOT NULL
+      ), statistici AS (
+        SELECT
+          user_id,
+          COUNT(*) FILTER (WHERE report_type = 'transport') AS transporturi,
+          COUNT(*) FILTER (WHERE report_type = 'vizita') AS vizite,
+          COUNT(*) FILTER (WHERE report_type = 'carcera') AS carcera,
+          COUNT(*) AS total
+        FROM participari
+        GROUP BY user_id
+      )
+    `,
+    params: filter.params,
+  };
 }
 
 export async function initDatabase(): Promise<void> {
@@ -42,6 +125,7 @@ export async function initDatabase(): Promise<void> {
 
     CREATE INDEX IF NOT EXISTS anp_reports_primary_user_idx ON anp_reports(primary_user_id);
     CREATE INDEX IF NOT EXISTS anp_reports_secondary_user_idx ON anp_reports(secondary_user_id);
+    CREATE INDEX IF NOT EXISTS anp_reports_created_at_idx ON anp_reports(created_at);
   `);
 }
 
@@ -128,36 +212,13 @@ export async function setCarceraApproval(messageId: string, approved: boolean): 
   `, [messageId, approved]);
 }
 
-const statsQuery = `
-  WITH participari AS (
-    SELECT primary_user_id AS user_id, report_type
-    FROM anp_reports
-    WHERE approved = TRUE
-
-    UNION ALL
-
-    SELECT secondary_user_id AS user_id, report_type
-    FROM anp_reports
-    WHERE approved = TRUE AND secondary_user_id IS NOT NULL
-  ), statistici AS (
-    SELECT
-      user_id,
-      COUNT(*) FILTER (WHERE report_type = 'transport') AS transporturi,
-      COUNT(*) FILTER (WHERE report_type = 'vizita') AS vizite,
-      COUNT(*) FILTER (WHERE report_type = 'carcera') AS carcera,
-      COUNT(*) AS total
-    FROM participari
-    GROUP BY user_id
-  )
-`;
-
-export async function getTopAgentStats(limit = 10): Promise<AgentStats[]> {
-  const result = await pool.query(`${statsQuery}
+export async function getAgentStatsForPeriod(period: StatsPeriod): Promise<AgentStats[]> {
+  const query = buildStatsQuery(period);
+  const result = await pool.query(`${query.sql}
     SELECT user_id, transporturi, vizite, carcera, total
     FROM statistici
     ORDER BY total DESC, transporturi DESC, vizite DESC, carcera DESC, user_id ASC
-    LIMIT $1
-  `, [limit]);
+  `, query.params);
 
   return result.rows.map((row) => ({
     userId: String(row.user_id),
@@ -168,8 +229,10 @@ export async function getTopAgentStats(limit = 10): Promise<AgentStats[]> {
   }));
 }
 
-export async function getAgentStats(userId: string): Promise<AgentStats | null> {
-  const result = await pool.query(`${statsQuery}, clasament AS (
+export async function getPersonalStatsForPeriod(userId: string, period: StatsPeriod): Promise<AgentStats | null> {
+  const query = buildStatsQuery(period);
+  const userParam = query.params.length + 1;
+  const result = await pool.query(`${query.sql}, clasament AS (
       SELECT
         *,
         ROW_NUMBER() OVER (
@@ -179,8 +242,8 @@ export async function getAgentStats(userId: string): Promise<AgentStats | null> 
     )
     SELECT user_id, transporturi, vizite, carcera, total, rank
     FROM clasament
-    WHERE user_id = $1
-  `, [userId]);
+    WHERE user_id = $${userParam}
+  `, [...query.params, userId]);
 
   const row = result.rows[0];
 
@@ -196,4 +259,31 @@ export async function getAgentStats(userId: string): Promise<AgentStats | null> 
     total: toNumber(row.total),
     rank: toNumber(row.rank),
   };
+}
+
+export async function getCurrentWeekInfo(): Promise<CurrentWeekInfo> {
+  const result = await pool.query(`
+    SELECT
+      EXTRACT(ISOYEAR FROM NOW() AT TIME ZONE '${REPORT_TIMEZONE}')::int AS year,
+      EXTRACT(WEEK FROM NOW() AT TIME ZONE '${REPORT_TIMEZONE}')::int AS week,
+      to_char(date_trunc('week', NOW() AT TIME ZONE '${REPORT_TIMEZONE}'), 'DD.MM.YYYY') AS start_date,
+      to_char(date_trunc('week', NOW() AT TIME ZONE '${REPORT_TIMEZONE}') + INTERVAL '6 days', 'DD.MM.YYYY') AS end_date
+  `);
+
+  const row = result.rows[0];
+
+  return {
+    year: toNumber(row?.year),
+    week: toNumber(row?.week),
+    startDate: String(row?.start_date ?? "-"),
+    endDate: String(row?.end_date ?? "-"),
+  };
+}
+
+export async function getCurrentLocalYear(): Promise<number> {
+  const result = await pool.query(`
+    SELECT EXTRACT(YEAR FROM NOW() AT TIME ZONE '${REPORT_TIMEZONE}')::int AS year
+  `);
+
+  return toNumber(result.rows[0]?.year);
 }

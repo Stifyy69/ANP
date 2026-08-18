@@ -7,7 +7,7 @@ export type CarceraDecision = "aprobat" | "respins";
 const actionLabels: Record<LogAction, string> = {
   transport: "un transport",
   vizita: "o vizita",
-  carcera: "o prelungire la carcera",
+  carcera: "un dosar disciplinar",
   regrupare: "o regrupare",
 };
 
@@ -22,11 +22,21 @@ async function getLogsChannel(client: Client) {
   return channel;
 }
 
+function dossierLink(dossierId?: string, reportUrl?: string): string {
+  if (!dossierId || !reportUrl) {
+    return "";
+  }
+
+  return ` | **[${dossierId}](${reportUrl})**`;
+}
+
 export async function sendActionLog(
   client: Client,
   action: LogAction,
   member: GuildMember,
   sourceChannelId: string,
+  dossierId?: string,
+  reportUrl?: string,
 ): Promise<void> {
   const channel = await getLogsChannel(client);
 
@@ -37,7 +47,7 @@ export async function sendActionLog(
   const unixTime = Math.floor(Date.now() / 1000);
 
   await channel.send({
-    content: `<#${sourceChannelId}> | <@${member.id}> a creat ${actionLabels[action]}. • <t:${unixTime}:f>`,
+    content: `<#${sourceChannelId}>${dossierLink(dossierId, reportUrl)} | <@${member.id}> a creat ${actionLabels[action]}. • <t:${unixTime}:f>`,
     allowedMentions: {
       parse: [],
       users: [member.id],
@@ -50,6 +60,7 @@ export async function sendEditLog(
   action: LogAction,
   member: GuildMember,
   sourceChannelId: string,
+  dossierId: string | undefined,
   reportUrl: string,
 ): Promise<void> {
   const channel = await getLogsChannel(client);
@@ -61,7 +72,7 @@ export async function sendEditLog(
   const unixTime = Math.floor(Date.now() / 1000);
 
   await channel.send({
-    content: `<#${sourceChannelId}> | <@${member.id}> a modificat ${actionLabels[action]}. [Vezi raportul](${reportUrl}) • <t:${unixTime}:f>`,
+    content: `<#${sourceChannelId}>${dossierLink(dossierId, reportUrl)} | <@${member.id}> a modificat ${actionLabels[action]}. • <t:${unixTime}:f>`,
     allowedMentions: {
       parse: [],
       users: [member.id],
@@ -74,6 +85,7 @@ export async function sendCarceraDecisionLog(
   decision: CarceraDecision,
   member: GuildMember,
   sourceChannelId: string,
+  dossierId: string | undefined,
   reportUrl: string,
 ): Promise<void> {
   const channel = await getLogsChannel(client);
@@ -85,7 +97,7 @@ export async function sendCarceraDecisionLog(
   const unixTime = Math.floor(Date.now() / 1000);
 
   await channel.send({
-    content: `<#${sourceChannelId}> | <@${member.id}> a ${decision} o prelungire la carcera. [Vezi raportul](${reportUrl}) • <t:${unixTime}:f>`,
+    content: `<#${sourceChannelId}>${dossierLink(dossierId, reportUrl)} | <@${member.id}> a ${decision} dosarul disciplinar. • <t:${unixTime}:f>`,
     allowedMentions: {
       parse: [],
       users: [member.id],

@@ -9,6 +9,7 @@ import {
   showTestPreparation,
   startTest,
 } from "../features/invatat/training.js";
+import { handleReportCommand } from "../features/rapoarte/reportCommand.js";
 import { showPersonalReportStats } from "../features/rapoarte/reportsPanel.js";
 import { handleTransportEditSubmit, showTransportEditModal } from "../features/transport/editTransport.js";
 import { handleTransportSubmit, showTransportModal } from "../features/transport/transport.js";
@@ -22,6 +23,14 @@ export async function handleInteractionCreate(interaction: Interaction): Promise
   }
 
   try {
+    if (interaction.isChatInputCommand()) {
+      if (interaction.commandName === "raport") {
+        await handleReportCommand(interaction);
+      }
+
+      return;
+    }
+
     if (interaction.isButton()) {
       if (interaction.customId === ids.transportButton) {
         await showTransportModal(interaction);

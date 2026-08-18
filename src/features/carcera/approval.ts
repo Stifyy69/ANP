@@ -8,7 +8,7 @@ import { env } from "../../config/env.js";
 import { setCarceraApproval } from "../../database/database.js";
 import { ensureReportsPanel } from "../rapoarte/reportsPanel.js";
 import { sendCarceraDecisionLog, type CarceraDecision } from "../../services/logService.js";
-import { messageHasButton } from "../../services/reportMessage.js";
+import { getReportDossierId, messageHasButton } from "../../services/reportMessage.js";
 import { ids } from "../../ui/ids.js";
 
 const decisionsInProgress = new Set<string>();
@@ -70,6 +70,7 @@ export async function handleCarceraDecision(
 
     const approved = decision === "aprobat";
     const decidedAt = new Date();
+    const dossierId = getReportDossierId(interaction.message) ?? undefined;
     const updatedEmbed = EmbedBuilder.from(currentEmbed)
       .setColor(approved ? 0x22c55e : 0xef4444)
       .setFooter({
@@ -108,6 +109,7 @@ export async function handleCarceraDecision(
       decision,
       member,
       interaction.channelId,
+      dossierId,
       interaction.message.url,
     );
 
