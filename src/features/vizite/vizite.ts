@@ -85,7 +85,8 @@ export async function handleVizitaSubmit(interaction: ModalSubmitInteraction): P
 
     secondary = await interaction.guild?.members.fetch(selectedUser.id).catch(() => null) ?? null;
 
-    if (!secondary || secondary.user.bot || !getGradeRole(secondary)) {
+    // Botii pot fi folositi ca tag de rezerva, oamenii trebuie sa aiba grad configurat.
+    if (!secondary || (!secondary.user.bot && !getGradeRole(secondary))) {
       await interaction.editReply("Agentul secundar selectat nu este un agent valid.");
       return;
     }
