@@ -21,39 +21,10 @@ type TestSession = {
   userId: string;
   questions: TestQuestion[];
   currentIndex: number;
-  score: number;
   expiresAt: number;
 };
 
 const sessions = new Map<string, TestSession>();
-
-function normalizeAnswer(value: string): string {
-  return value
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase()
-    .replace(/[^a-z0-9:+/\- ]/g, " ")
-    .replace(/\s+/g, " ")
-    .trim();
-}
-
-function isCorrectAnswer(question: TestQuestion, value: string): boolean {
-  const answer = normalizeAnswer(value);
-
-  return question.accepted.some((candidate) => {
-    const accepted = normalizeAnswer(candidate);
-
-    if (accepted === "da" || accepted === "nu") {
-      return answer === accepted;
-    }
-
-    if (/^\d+$/.test(accepted)) {
-      return new RegExp(`(^|\\s)${accepted}(\\s|$)`).test(answer);
-    }
-
-    return answer === accepted || answer.includes(accepted);
-  });
-}
 
 function shuffledQuestions(): TestQuestion[] {
   const questions = [...testQuestions];
@@ -72,7 +43,6 @@ function createSession(userId: string): TestSession {
     userId,
     questions: shuffledQuestions(),
     currentIndex: 0,
-    score: 0,
     expiresAt: Date.now() + SESSION_LIFETIME_MS,
   };
 
@@ -107,7 +77,7 @@ function questionPayload(session: TestSession) {
     .setTitle(`Intrebarea ${session.currentIndex + 1}/${session.questions.length}`)
     .setDescription(question.question)
     .addFields({ name: "Categorie", value: question.category })
-    .setFooter({ text: "Scrie raspunsul tau. Nu exista variante multiple." });
+    .setFooter({ text: "Raspunde cu ce ai inteles. Botul iti va arata apoi raspunsul din regulament." });
 
   const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
     new ButtonBuilder()
@@ -187,7 +157,7 @@ export async function showTestPreparation(interaction: ButtonInteraction): Promi
     )
     .addFields({
       name: "Formatul testului",
-      value: `${TEST_SIZE} intrebari aleatorii. Toate raspunsurile sunt scrise de tine, fara variante multiple.`,
+      value: `${TEST_SIZE} intrebari aleatorii. Scrii raspunsul cu propriile cuvinte, iar dupa fiecare intrebare vei vedea raspunsul din regulament pentru comparatie.`,
     });
 
   const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
@@ -230,7 +200,7 @@ export async function showAnswerModal(interaction: ButtonInteraction): Promise<v
       createTextField({
         label: "Raspunsul tau",
         customId: ids.invatatAnswerField,
-        placeholder: "Scrie raspunsul aici",
+        placeholder: "Scrie raspunsul cu propriile cuvinte",
         style: TextInputStyle.Paragraph,
       }),
     );
@@ -263,31 +233,29 @@ export async function handleTestAnswer(interaction: ModalSubmitInteraction): Pro
     return;
   }
 
-  const userAnswer = interaction.fields.getTextInputValue(ids.invatatAnswerField);
-  const correct = isCorrectAnswer(question, userAnswer);
-
-  if (correct) {
-    session.score += 1;
-  }
+  const userAnswer = interaction.fields.getTextInputValue(ids.invatatAnswerField).trim();
 
   session.currentIndex += 1;
   session.expiresAt = Date.now() + SESSION_LIFETIME_MS;
 
   const feedback = new EmbedBuilder()
-    .setColor(correct ? 0x15803d : 0xb91c1c)
-    .setTitle(correct ? "Raspuns corect" : "Raspuns gresit")
-    .setDescription(correct ? "Ai raspuns corect." : `Raspunsul corect este:\n**${question.answer}**`)
-    .addFields({ name: "Intrebarea", value: question.question });
+    .setColor(0x334155)
+    .setTitle("Comparatie cu regulamentul")
+    .addFields(
+      { name: "Intrebarea", value: question.question },
+      { name: "Raspunsul tau", value: userAnswer || "Nu ai introdus un raspuns." },
+      { name: "Raspuns din regulament", value: question.answer },
+    )
+    .setFooter({ text: "Compara raspunsul tau cu regula oficiala. Botul nu il marcheaza corect sau gresit." });
 
   if (session.currentIndex >= session.questions.length) {
-    const finalScore = session.score;
     const total = session.questions.length;
     sessions.delete(interaction.user.id);
 
     const result = new EmbedBuilder()
       .setColor(0x334155)
       .setTitle("Test ANP finalizat")
-      .setDescription(`Ai obtinut **${finalScore}/${total}** raspunsuri corecte.`)
+      .setDescription(`Ai parcurs toate cele **${total}** intrebari si ai comparat raspunsurile cu regulamentul.`)
       .setFooter({ text: "Poti relua oricand materialele si testul din Centrul de Instruire ANP." });
 
     await interaction.reply({ embeds: [feedback, result], flags: MessageFlags.Ephemeral });
