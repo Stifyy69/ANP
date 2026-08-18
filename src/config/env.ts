@@ -25,6 +25,7 @@ export const env = {
   discordToken: getRequiredEnv("DISCORD_TOKEN"),
   guildId: getRequiredEnv("GUILD_ID"),
   chatIcChannelId: getRequiredEnv("CHAT_IC_CHANNEL_ID"),
+  receptieChannelId: getRequiredEnv("RECEPTIE_CHANNEL_ID"),
   transportChannelId: getRequiredEnv("TRANSPORT_CHANNEL_ID"),
   viziteChannelId: getRequiredEnv("VIZITE_CHANNEL_ID"),
   carceraChannelId: getRequiredEnv("CARCERA_CHANNEL_ID"),
@@ -32,4 +33,7 @@ export const env = {
 
   // Ordinea rolurilor conteaza. Primul grad gasit este folosit de bot.
   gradeRoleIds: getRoleIds("GRADE_ROLE_IDS"),
+
+  // Doar gradele de aici pot aproba sau respinge prelungirile.
+  carceraApprovalRoleIds: getRoleIds("CARCERA_APPROVAL_ROLE_IDS"),
 } as const;
