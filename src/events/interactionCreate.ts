@@ -6,8 +6,6 @@ import { handleCarceraEditSubmit, showCarceraEditModal } from "../features/carce
 import {
   handleTestAnswer,
   showAnswerModal,
-  showLearning,
-  showLearningPage,
   showTestPreparation,
   startTest,
 } from "../features/invatat/training.js";
@@ -61,16 +59,6 @@ export async function handleInteractionCreate(interaction: Interaction): Promise
 
       if (interaction.customId === ids.carceraReject) {
         await handleCarceraDecision(interaction, "respins");
-        return;
-      }
-
-      if (interaction.customId === ids.invatatLearnButton) {
-        await showLearning(interaction);
-        return;
-      }
-
-      if (interaction.customId.startsWith(ids.invatatLessonPrefix)) {
-        await showLearningPage(interaction);
         return;
       }
 
