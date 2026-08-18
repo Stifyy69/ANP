@@ -1,7 +1,10 @@
 import type { Guild, Message } from "discord.js";
 
-function removeRoleMentions(text: string): string {
-  return text.replace(/<@&(\d+)>/g, "");
+function replaceRoleMentions(text: string, guild: Guild): string {
+  return text.replace(/<@&(\d+)>/g, (_match, roleId: string) => {
+    const role = guild.roles.cache.get(roleId);
+    return role ? `@\u200b${role.name}` : "@\u200brol";
+  });
 }
 
 function replaceChannelMentions(text: string, guild: Guild): string {
@@ -17,8 +20,8 @@ export function sanitizeIcMessage(message: Message<true>): string {
   // Tag-urile de user sunt mutate in partea "mentioneaza pe".
   text = text.replace(/<@!?(\d+)>/g, "");
 
-  // Alte roluri nu trebuie sa ramana in mesajul IC si nici sa poata da ping.
-  text = removeRoleMentions(text);
+  // Role tag-urile raman vizibile ca text, dar nu pot da ping.
+  text = replaceRoleMentions(text, message.guild);
   text = replaceChannelMentions(text, message.guild);
   text = text.replace(/@everyone/gi, "@\u200beveryone");
   text = text.replace(/@here/gi, "@\u200bhere");
