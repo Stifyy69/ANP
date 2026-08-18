@@ -5,6 +5,8 @@ import {
   type GuildMember,
 } from "discord.js";
 import { env } from "../../config/env.js";
+import { setCarceraApproval } from "../../database/database.js";
+import { ensureReportsPanel } from "../rapoarte/reportsPanel.js";
 import { sendCarceraDecisionLog, type CarceraDecision } from "../../services/logService.js";
 import { messageHasButton } from "../../services/reportMessage.js";
 import { ids } from "../../ui/ids.js";
@@ -75,12 +77,31 @@ export async function handleCarceraDecision(
       })
       .setTimestamp(decidedAt);
 
-    // Dupa decizie raportul devine final si nu mai poate fi modificat.
-    await interaction.message.edit({
-      embeds: [updatedEmbed],
-      components: [],
-    });
+    if (approved) {
+      await setCarceraApproval(messageId, true);
+    }
+
+    try {
+      // Dupa decizie dosarul devine final si nu mai poate fi modificat.
+      await interaction.message.edit({
+        embeds: [updatedEmbed],
+        components: [],
+      });
+    } catch (error) {
+      if (approved) {
+        await setCarceraApproval(messageId, false).catch(() => null);
+      }
+
+      throw error;
+    }
+
     await interaction.message.react(approved ? "✅" : "❌");
+
+    if (approved) {
+      await ensureReportsPanel(interaction.client).catch((error) => {
+        console.error("Nu am putut actualiza panoul de rapoarte:", error);
+      });
+    }
 
     await sendCarceraDecisionLog(
       interaction.client,
@@ -91,7 +112,7 @@ export async function handleCarceraDecision(
     );
 
     await interaction.followUp({
-      content: approved ? "Prelungirea a fost aprobata." : "Prelungirea a fost respinsa.",
+      content: approved ? "Dosarul disciplinar a fost aprobat si trecut in evidenta." : "Dosarul disciplinar a fost respins.",
       flags: MessageFlags.Ephemeral,
     });
   } finally {
