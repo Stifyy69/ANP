@@ -12,6 +12,7 @@ import { getGradeRole } from "../../services/gradeService.js";
 import { sendActionLog } from "../../services/logService.js";
 import { ids } from "../../ui/ids.js";
 import { createTextField, createUserField } from "../../ui/modalFields.js";
+import { createVizitaEmbed } from "../../ui/reportEmbeds.js";
 
 async function getMember(interaction: ButtonInteraction | ModalSubmitInteraction): Promise<GuildMember | null> {
   if (!interaction.guild) {
@@ -45,17 +46,17 @@ export async function showVizitaModal(interaction: ButtonInteraction): Promise<v
       createTextField({
         label: "Nume vizitator",
         customId: ids.vizitaVisitor,
-        placeholder: "Ex: Denis Camataru 77177",
+        placeholder: "Ex: Marus Malius 57255",
       }),
       createTextField({
         label: "Nume detinut",
         customId: ids.vizitaDetainee,
-        placeholder: "Ex: Costel Cutirau 75059",
+        placeholder: "Ex: Radu Florin 1010",
       }),
       createTextField({
         label: "Data si ora",
         customId: ids.vizitaDateTime,
-        placeholder: "Ex: 17.08.2026 20:24-20:29",
+        placeholder: "Ex: 18.08.2026 20:10-20:20",
       }),
     );
 
@@ -84,8 +85,8 @@ export async function handleVizitaSubmit(interaction: ModalSubmitInteraction): P
 
     secondary = await interaction.guild?.members.fetch(selectedUser.id).catch(() => null) ?? null;
 
-    if (!secondary || !getGradeRole(secondary)) {
-      await interaction.editReply("Agentul secundar selectat nu are un grad configurat.");
+    if (!secondary || secondary.user.bot || !getGradeRole(secondary)) {
+      await interaction.editReply("Agentul secundar selectat nu este un agent valid.");
       return;
     }
   }
@@ -95,23 +96,24 @@ export async function handleVizitaSubmit(interaction: ModalSubmitInteraction): P
   const dateTime = sanitizeFormText(interaction.fields.getTextInputValue(ids.vizitaDateTime));
   const channel = await interaction.client.channels.fetch(env.viziteChannelId).catch(() => null);
 
-  if (!channel || channel.type !== ChannelType.GuildText) {
+  if (!channel || channel.type !== ChannelType.GuildText || channel.guildId !== env.guildId) {
     await interaction.editReply("Canalul de vizite nu este configurat corect.");
     return;
   }
 
-  const agents = [`<@${member.id}>`, secondary ? `<@${secondary.id}>` : null].filter(Boolean).join(" ");
+  const agents = [`<@${member.id}>`, secondary ? `<@${secondary.id}>` : null].filter(Boolean).join("  ");
   const allowedUsers = [member.id, secondary?.id].filter((id): id is string => Boolean(id));
+  const embed = createVizitaEmbed({
+    gradeName: grade.name,
+    memberId: member.id,
+    visitor,
+    agents,
+    detainee,
+    dateTime,
+  });
 
   await channel.send({
-    content: [
-      `**${grade.name} | <@${member.id}>**`,
-      "",
-      `**Nume vizitator:** ${visitor}`,
-      `**Agent operativ responsabil:** ${agents}`,
-      `**Nume detinut:** ${detainee}`,
-      `**Data si ora:** ${dateTime}`,
-    ].join("\n"),
+    embeds: [embed],
     allowedMentions: {
       parse: [],
       users: allowedUsers,

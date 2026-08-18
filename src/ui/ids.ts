@@ -17,4 +17,6 @@ export const ids = {
   carceraDetainee: "anp:carcera:detainee",
   carceraMonths: "anp:carcera:months",
   carceraReason: "anp:carcera:reason",
+  carceraApprove: "anp:carcera:approve",
+  carceraReject: "anp:carcera:reject",
 } as const;

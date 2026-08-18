@@ -1,5 +1,6 @@
 import { MessageFlags, type Interaction } from "discord.js";
 import { env } from "../config/env.js";
+import { handleCarceraDecision } from "../features/carcera/approval.js";
 import { handleCarceraSubmit, showCarceraModal } from "../features/carcera/carcera.js";
 import { handleTransportSubmit, showTransportModal } from "../features/transport/transport.js";
 import { handleVizitaSubmit, showVizitaModal } from "../features/vizite/vizite.js";
@@ -24,6 +25,16 @@ export async function handleInteractionCreate(interaction: Interaction): Promise
 
       if (interaction.customId === ids.carceraButton) {
         await showCarceraModal(interaction);
+        return;
+      }
+
+      if (interaction.customId === ids.carceraApprove) {
+        await handleCarceraDecision(interaction, "aprobat");
+        return;
+      }
+
+      if (interaction.customId === ids.carceraReject) {
+        await handleCarceraDecision(interaction, "respins");
       }
 
       return;

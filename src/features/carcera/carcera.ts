@@ -1,4 +1,7 @@
 import {
+  ActionRowBuilder,
+  ButtonBuilder,
+  ButtonStyle,
   ChannelType,
   MessageFlags,
   ModalBuilder,
@@ -13,6 +16,7 @@ import { getGradeRole } from "../../services/gradeService.js";
 import { sendActionLog } from "../../services/logService.js";
 import { ids } from "../../ui/ids.js";
 import { createTextField } from "../../ui/modalFields.js";
+import { createCarceraEmbed } from "../../ui/reportEmbeds.js";
 
 async function getMember(interaction: ButtonInteraction | ModalSubmitInteraction): Promise<GuildMember | null> {
   if (!interaction.guild) {
@@ -40,7 +44,7 @@ export async function showCarceraModal(interaction: ButtonInteraction): Promise<
       createTextField({
         label: "Detinut",
         customId: ids.carceraDetainee,
-        placeholder: "Ex: Tractor Achim 37422",
+        placeholder: "Ex: Radu Florin 1010",
       }),
       createTextField({
         label: "Luni adaugate",
@@ -74,20 +78,33 @@ export async function handleCarceraSubmit(interaction: ModalSubmitInteraction): 
   const reason = sanitizeFormText(interaction.fields.getTextInputValue(ids.carceraReason));
   const channel = await interaction.client.channels.fetch(env.carceraChannelId).catch(() => null);
 
-  if (!channel || channel.type !== ChannelType.GuildText) {
+  if (!channel || channel.type !== ChannelType.GuildText || channel.guildId !== env.guildId) {
     await interaction.editReply("Canalul de carcera nu este configurat corect.");
     return;
   }
 
+  const embed = createCarceraEmbed({
+    gradeName: grade.name,
+    memberId: member.id,
+    detainee,
+    months,
+    reason,
+  });
+
+  const decisionRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
+    new ButtonBuilder()
+      .setCustomId(ids.carceraApprove)
+      .setLabel("Aprobat")
+      .setStyle(ButtonStyle.Success),
+    new ButtonBuilder()
+      .setCustomId(ids.carceraReject)
+      .setLabel("Respins")
+      .setStyle(ButtonStyle.Danger),
+  );
+
   await channel.send({
-    content: [
-      `**${grade.name} | <@${member.id}>**`,
-      "",
-      `**Agent responsabil:** <@${member.id}>`,
-      `**Detinut:** ${detainee}`,
-      `**Luni adaugate:** ${months}`,
-      `**Motiv:** ${reason}`,
-    ].join("\n"),
+    embeds: [embed],
+    components: [decisionRow],
     allowedMentions: {
       parse: [],
       users: [member.id],
@@ -95,5 +112,5 @@ export async function handleCarceraSubmit(interaction: ModalSubmitInteraction): 
   });
 
   await sendActionLog(interaction.client, "carcera", member, channel.id);
-  await interaction.editReply("Prelungirea a fost creata.");
+  await interaction.editReply("Prelungirea a fost trimisa pentru aprobare.");
 }

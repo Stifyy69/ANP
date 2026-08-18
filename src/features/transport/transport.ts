@@ -2,7 +2,6 @@ import {
   ChannelType,
   MessageFlags,
   ModalBuilder,
-  TextInputStyle,
   type ButtonInteraction,
   type GuildMember,
   type ModalSubmitInteraction,
@@ -13,6 +12,7 @@ import { getGradeRole } from "../../services/gradeService.js";
 import { sendActionLog } from "../../services/logService.js";
 import { ids } from "../../ui/ids.js";
 import { createTextField, createUserField } from "../../ui/modalFields.js";
+import { createTransportEmbed } from "../../ui/reportEmbeds.js";
 
 async function getMember(interaction: ButtonInteraction | ModalSubmitInteraction): Promise<GuildMember | null> {
   if (!interaction.guild) {
@@ -46,12 +46,12 @@ export async function showTransportModal(interaction: ButtonInteraction): Promis
       createTextField({
         label: "Preluat de la",
         customId: ids.transportPickup,
-        placeholder: "Ex: Pedala Marian / Sectia veche",
+        placeholder: "Ex: Tudor Mihai / IPJ",
       }),
       createTextField({
         label: "Nume detinut",
         customId: ids.transportDetainee,
-        placeholder: "Ex: 15433 Goda Citiri",
+        placeholder: "Ex: Radu Florin 1010",
       }),
     );
 
@@ -80,8 +80,8 @@ export async function handleTransportSubmit(interaction: ModalSubmitInteraction)
 
     secondary = await interaction.guild?.members.fetch(selectedUser.id).catch(() => null) ?? null;
 
-    if (!secondary || !getGradeRole(secondary)) {
-      await interaction.editReply("Agentul secundar selectat nu are un grad configurat.");
+    if (!secondary || secondary.user.bot || !getGradeRole(secondary)) {
+      await interaction.editReply("Agentul secundar selectat nu este un agent valid.");
       return;
     }
   }
@@ -90,22 +90,23 @@ export async function handleTransportSubmit(interaction: ModalSubmitInteraction)
   const detainee = sanitizeFormText(interaction.fields.getTextInputValue(ids.transportDetainee));
   const channel = await interaction.client.channels.fetch(env.transportChannelId).catch(() => null);
 
-  if (!channel || channel.type !== ChannelType.GuildText) {
+  if (!channel || channel.type !== ChannelType.GuildText || channel.guildId !== env.guildId) {
     await interaction.editReply("Canalul de transporturi nu este configurat corect.");
     return;
   }
 
-  const agents = [`<@${member.id}>`, secondary ? `<@${secondary.id}>` : null].filter(Boolean).join(" ");
+  const agents = [`<@${member.id}>`, secondary ? `<@${secondary.id}>` : null].filter(Boolean).join("  ");
   const allowedUsers = [member.id, secondary?.id].filter((id): id is string => Boolean(id));
+  const embed = createTransportEmbed({
+    gradeName: grade.name,
+    memberId: member.id,
+    agents,
+    pickup,
+    detainee,
+  });
 
   await channel.send({
-    content: [
-      `**${grade.name} | <@${member.id}>**`,
-      "",
-      `**Agent responsabil:** ${agents}`,
-      `**Preluat de la:** ${pickup}`,
-      `**Nume detinut:** ${detainee}`,
-    ].join("\n"),
+    embeds: [embed],
     allowedMentions: {
       parse: [],
       users: allowedUsers,

@@ -3,6 +3,7 @@ import {
   ButtonBuilder,
   ButtonStyle,
   ChannelType,
+  EmbedBuilder,
   type Client,
   type Message,
 } from "discord.js";
@@ -10,34 +11,38 @@ import { env } from "../config/env.js";
 import { ids } from "./ids.js";
 
 type PanelConfig = {
-  channelId: string;
   title: string;
   description: string;
   buttonId: string;
   buttonLabel: string;
+  buttonStyle: ButtonStyle;
+  color: number;
 };
 
 const panels: PanelConfig[] = [
   {
-    channelId: env.transportChannelId,
-    title: "SISTEM TRANSPORTURI",
-    description: "Apasa butonul pentru a crea un transport nou.",
+    title: "🚓 Transporturi",
+    description: "Creeaza un raport nou de transport. Agentul principal si gradul sunt luate automat din Discord.",
     buttonId: ids.transportButton,
     buttonLabel: "Creeaza transport",
+    buttonStyle: ButtonStyle.Primary,
+    color: 0x3b82f6,
   },
   {
-    channelId: env.viziteChannelId,
-    title: "SISTEM VIZITE",
-    description: "Apasa butonul pentru a inregistra o vizita.",
+    title: "👀 Vizite",
+    description: "Inregistreaza rapid o vizita si selecteaza agentul secundar direct din lista de membri.",
     buttonId: ids.vizitaButton,
     buttonLabel: "Creeaza vizita",
+    buttonStyle: ButtonStyle.Success,
+    color: 0x8b5cf6,
   },
   {
-    channelId: env.carceraChannelId,
-    title: "SISTEM CARCERA",
-    description: "Apasa butonul pentru a crea o prelungire.",
+    title: "⛓️ Carcera si prelungiri",
+    description: "Trimite o prelungire la aprobare. Dupa postare apar butoanele Aprobat si Respins.",
     buttonId: ids.carceraButton,
     buttonLabel: "Creeaza prelungire",
+    buttonStyle: ButtonStyle.Secondary,
+    color: 0xf59e0b,
   },
 ];
 
@@ -60,20 +65,54 @@ function jsonHasButton(value: unknown, buttonId: string): boolean {
 }
 
 function hasButton(message: Message, buttonId: string): boolean {
-  // Discord poate intoarce mai multe tipuri de componente, nu doar ActionRow.
   return message.components.some((component) => jsonHasButton(component.toJSON(), buttonId));
 }
 
-export async function ensurePanels(client: Client<true>): Promise<void> {
-  for (const panel of panels) {
-    const channel = await client.channels.fetch(panel.channelId).catch(() => null);
+async function removeOldPanels(client: Client<true>): Promise<void> {
+  const oldChannels = [env.transportChannelId, env.viziteChannelId, env.carceraChannelId];
+  const oldButtonIds = [ids.transportButton, ids.vizitaButton, ids.carceraButton];
+
+  for (const channelId of oldChannels) {
+    const channel = await client.channels.fetch(channelId).catch(() => null);
 
     if (!channel || channel.type !== ChannelType.GuildText || channel.guildId !== env.guildId) {
-      console.error(`Canal invalid pentru panel: ${panel.title}`);
       continue;
     }
 
-    const recentMessages = await channel.messages.fetch({ limit: 100 }).catch(() => null);
+    const messages = await channel.messages.fetch({ limit: 100 }).catch(() => null);
+
+    if (!messages) {
+      continue;
+    }
+
+    for (const message of messages.values()) {
+      if (message.author.id !== client.user.id) {
+        continue;
+      }
+
+      const isOldPanel = oldButtonIds.some((buttonId) => hasButton(message, buttonId));
+
+      if (isOldPanel) {
+        // Butoanele de creare trebuie sa ramana doar in receptie.
+        await message.delete().catch(() => null);
+      }
+    }
+  }
+}
+
+export async function ensurePanels(client: Client<true>): Promise<void> {
+  await removeOldPanels(client);
+
+  const channel = await client.channels.fetch(env.receptieChannelId).catch(() => null);
+
+  if (!channel || channel.type !== ChannelType.GuildText || channel.guildId !== env.guildId) {
+    console.error("Canal invalid pentru receptie.");
+    return;
+  }
+
+  const recentMessages = await channel.messages.fetch({ limit: 100 }).catch(() => null);
+
+  for (const panel of panels) {
     const alreadyExists = recentMessages?.some(
       (message) => message.author.id === client.user.id && hasButton(message, panel.buttonId),
     );
@@ -82,16 +121,19 @@ export async function ensurePanels(client: Client<true>): Promise<void> {
       continue;
     }
 
+    const embed = new EmbedBuilder()
+      .setColor(panel.color)
+      .setTitle(panel.title)
+      .setDescription(panel.description)
+      .setFooter({ text: "Receptie ANP" });
+
     const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
       new ButtonBuilder()
         .setCustomId(panel.buttonId)
         .setLabel(panel.buttonLabel)
-        .setStyle(ButtonStyle.Primary),
+        .setStyle(panel.buttonStyle),
     );
 
-    await channel.send({
-      content: `## ${panel.title}\n${panel.description}`,
-      components: [row],
-    });
+    await channel.send({ embeds: [embed], components: [row] });
   }
 }
