@@ -57,7 +57,7 @@ export async function ensurePanels(client: Client<true>): Promise<void> {
   for (const panel of panels) {
     const channel = await client.channels.fetch(panel.channelId).catch(() => null);
 
-    if (!channel || channel.type !== ChannelType.GuildText) {
+    if (!channel || channel.type !== ChannelType.GuildText || channel.guildId !== env.guildId) {
       console.error(`Canal invalid pentru panel: ${panel.title}`);
       continue;
     }
