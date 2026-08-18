@@ -4,6 +4,7 @@ import {
   ButtonStyle,
   ChannelType,
   type Client,
+  type Message,
 } from "discord.js";
 import { env } from "../config/env.js";
 import { ids } from "./ids.js";
@@ -40,17 +41,27 @@ const panels: PanelConfig[] = [
   },
 ];
 
-function hasButton(message: { components: readonly { components: readonly { toJSON(): unknown }[] }[] }, buttonId: string): boolean {
-  return message.components.some((row) =>
-    row.components.some((component) => {
-      const data = component.toJSON();
+function jsonHasButton(value: unknown, buttonId: string): boolean {
+  if (Array.isArray(value)) {
+    return value.some((item) => jsonHasButton(item, buttonId));
+  }
 
-      return typeof data === "object"
-        && data !== null
-        && "custom_id" in data
-        && data.custom_id === buttonId;
-    }),
-  );
+  if (typeof value !== "object" || value === null) {
+    return false;
+  }
+
+  const data = value as Record<string, unknown>;
+
+  if (data.custom_id === buttonId) {
+    return true;
+  }
+
+  return jsonHasButton(data.components, buttonId);
+}
+
+function hasButton(message: Message, buttonId: string): boolean {
+  // Discord poate intoarce mai multe tipuri de componente, nu doar ActionRow.
+  return message.components.some((component) => jsonHasButton(component.toJSON(), buttonId));
 }
 
 export async function ensurePanels(client: Client<true>): Promise<void> {
