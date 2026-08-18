@@ -60,7 +60,7 @@ export async function sendEditLog(
   action: LogAction,
   member: GuildMember,
   sourceChannelId: string,
-  dossierId: string,
+  dossierId: string | undefined,
   reportUrl: string,
 ): Promise<void> {
   const channel = await getLogsChannel(client);
@@ -85,7 +85,7 @@ export async function sendCarceraDecisionLog(
   decision: CarceraDecision,
   member: GuildMember,
   sourceChannelId: string,
-  dossierId: string,
+  dossierId: string | undefined,
   reportUrl: string,
 ): Promise<void> {
   const channel = await getLogsChannel(client);
