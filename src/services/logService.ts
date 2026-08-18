@@ -45,11 +45,12 @@ export async function sendActionLog(
   });
 }
 
-export async function sendCarceraDecisionLog(
+export async function sendEditLog(
   client: Client,
-  decision: CarceraDecision,
+  action: LogAction,
   member: GuildMember,
   sourceChannelId: string,
+  reportUrl: string,
 ): Promise<void> {
   const channel = await getLogsChannel(client);
 
@@ -60,7 +61,31 @@ export async function sendCarceraDecisionLog(
   const unixTime = Math.floor(Date.now() / 1000);
 
   await channel.send({
-    content: `<#${sourceChannelId}> | <@${member.id}> a ${decision} o prelungire la carcera. • <t:${unixTime}:f>`,
+    content: `<#${sourceChannelId}> | <@${member.id}> a modificat ${actionLabels[action]}. [Vezi raportul](${reportUrl}) • <t:${unixTime}:f>`,
+    allowedMentions: {
+      parse: [],
+      users: [member.id],
+    },
+  });
+}
+
+export async function sendCarceraDecisionLog(
+  client: Client,
+  decision: CarceraDecision,
+  member: GuildMember,
+  sourceChannelId: string,
+  reportUrl: string,
+): Promise<void> {
+  const channel = await getLogsChannel(client);
+
+  if (!channel) {
+    return;
+  }
+
+  const unixTime = Math.floor(Date.now() / 1000);
+
+  await channel.send({
+    content: `<#${sourceChannelId}> | <@${member.id}> a ${decision} o prelungire la carcera. [Vezi raportul](${reportUrl}) • <t:${unixTime}:f>`,
     allowedMentions: {
       parse: [],
       users: [member.id],
