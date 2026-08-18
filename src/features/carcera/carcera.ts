@@ -8,6 +8,11 @@ import {
   type ModalSubmitInteraction,
 } from "discord.js";
 import { env } from "../../config/env.js";
+import {
+  formatDossierId,
+  nextDossierNumber,
+  registerReport,
+} from "../../database/database.js";
 import { sanitizeFormText } from "../../services/discordText.js";
 import { getGradeRole } from "../../services/gradeService.js";
 import { sendActionLog } from "../../services/logService.js";
@@ -81,7 +86,19 @@ export async function handleCarceraSubmit(interaction: ModalSubmitInteraction): 
     return;
   }
 
+  let dossierNumber: number;
+
+  try {
+    dossierNumber = await nextDossierNumber("carcera");
+  } catch (error) {
+    console.error("Nu am putut genera dosarul disciplinar:", error);
+    await interaction.editReply("Registrul ANP nu este disponibil momentan. Dosarul nu a fost inregistrat.");
+    return;
+  }
+
+  const dossierId = formatDossierId("carcera", dossierNumber);
   const embed = createCarceraEmbed({
+    dossierId,
     gradeName: grade.name,
     memberId: member.id,
     detainee,
@@ -89,7 +106,7 @@ export async function handleCarceraSubmit(interaction: ModalSubmitInteraction): 
     reason,
   });
 
-  await channel.send({
+  const report = await channel.send({
     embeds: [embed],
     components: [createCarceraPendingRow()],
     allowedMentions: {
@@ -98,6 +115,21 @@ export async function handleCarceraSubmit(interaction: ModalSubmitInteraction): 
     },
   });
 
+  try {
+    await registerReport({
+      messageId: report.id,
+      reportType: "carcera",
+      dossierNumber,
+      primaryUserId: member.id,
+      approved: false,
+    });
+  } catch (error) {
+    console.error("Nu am putut arhiva dosarul disciplinar:", error);
+    await report.delete().catch(() => null);
+    await interaction.editReply("Dosarul disciplinar nu a putut fi arhivat in registrul ANP.");
+    return;
+  }
+
   await sendActionLog(interaction.client, "carcera", member, channel.id);
-  await interaction.editReply("Prelungirea a fost trimisa pentru aprobare.");
+  await interaction.editReply(`Dosarul disciplinar **${dossierId}** a fost inaintat spre aprobare.`);
 }
