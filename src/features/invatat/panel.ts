@@ -38,20 +38,16 @@ function buildPanel() {
     .setColor(0x334155)
     .setTitle("Centrul de Instruire ANP")
     .setDescription(
-      "Spatiul de pregatire pentru personalul penitenciarului. Consulta regulamentul, parcurge materialele de instruire si verifica-ti cunostintele prin testul ANP.",
+      "Citeste regulamentul oficial ANP, apoi verifica-ti cunostintele prin testul de pregatire.",
     )
     .addFields(
       {
-        name: "Pregatire",
-        value: "Parcurge informatiile esentiale despre ierarhie, atributii, vizite, transporturi, carcera si promovari.",
+        name: "Regulament oficial",
+        value: "Inainte de test, parcurge regulamentul ANP de pe site-ul oficial.",
       },
       {
         name: "Test de verificare",
-        value: "Toate raspunsurile sunt scrise de tine. Nu exista variante multiple de raspuns.",
-      },
-      {
-        name: "Inainte de test",
-        value: "Citirea regulamentului oficial ANP este obligatorie inainte de inceperea testului.",
+        value: "Vei primi 10 intrebari aleatorii. Scrii raspunsul cu propriile cuvinte, apoi il compari cu raspunsul din regulament.",
       },
     )
     .setFooter({ text: "Centrul de Instruire ANP" });
@@ -61,10 +57,6 @@ function buildPanel() {
       .setLabel("Citeste regulamentul")
       .setStyle(ButtonStyle.Link)
       .setURL(ANP_REGULATION_URL),
-    new ButtonBuilder()
-      .setCustomId(ids.invatatLearnButton)
-      .setLabel("Invata regulamentul")
-      .setStyle(ButtonStyle.Secondary),
     new ButtonBuilder()
       .setCustomId(ids.invatatStartButton)
       .setLabel("Incepe testul")

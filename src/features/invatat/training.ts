@@ -11,7 +11,7 @@ import {
 } from "discord.js";
 import { ids } from "../../ui/ids.js";
 import { createTextField } from "../../ui/modalFields.js";
-import { ANP_REGULATION_URL, learningPages, testQuestions, type TestQuestion } from "./questions.js";
+import { ANP_REGULATION_URL, testQuestions, type TestQuestion } from "./questions.js";
 
 const TEST_SIZE = 10;
 const SESSION_LIFETIME_MS = 30 * 60 * 1000;
@@ -87,65 +87,6 @@ function questionPayload(session: TestSession) {
   );
 
   return { embeds: [embed], components: [row] };
-}
-
-function lessonPayload(index: number) {
-  const page = learningPages[index];
-
-  if (!page) {
-    return null;
-  }
-
-  const embed = new EmbedBuilder()
-    .setColor(0x475569)
-    .setTitle(`${index + 1}/${learningPages.length} | ${page.title}`)
-    .setDescription(page.content)
-    .setFooter({ text: "Material de pregatire ANP" });
-
-  const components: ActionRowBuilder<ButtonBuilder>[] = [];
-
-  if (index + 1 < learningPages.length) {
-    components.push(
-      new ActionRowBuilder<ButtonBuilder>().addComponents(
-        new ButtonBuilder()
-          .setCustomId(`${ids.invatatLessonPrefix}${index + 1}`)
-          .setLabel("Urmatoarea pagina")
-          .setStyle(ButtonStyle.Secondary),
-      ),
-    );
-  }
-
-  return { embeds: [embed], components };
-}
-
-export async function showLearning(interaction: ButtonInteraction): Promise<void> {
-  const payload = lessonPayload(0);
-
-  if (!payload) {
-    await interaction.reply({
-      content: "Materialul de instruire nu este disponibil momentan.",
-      flags: MessageFlags.Ephemeral,
-    });
-    return;
-  }
-
-  await interaction.reply({ ...payload, flags: MessageFlags.Ephemeral });
-}
-
-export async function showLearningPage(interaction: ButtonInteraction): Promise<void> {
-  const rawIndex = interaction.customId.slice(ids.invatatLessonPrefix.length);
-  const index = Number(rawIndex);
-  const payload = Number.isInteger(index) ? lessonPayload(index) : null;
-
-  if (!payload) {
-    await interaction.reply({
-      content: "Pagina de instruire nu mai este disponibila.",
-      flags: MessageFlags.Ephemeral,
-    });
-    return;
-  }
-
-  await interaction.update(payload);
 }
 
 export async function showTestPreparation(interaction: ButtonInteraction): Promise<void> {
@@ -256,7 +197,7 @@ export async function handleTestAnswer(interaction: ModalSubmitInteraction): Pro
       .setColor(0x334155)
       .setTitle("Test ANP finalizat")
       .setDescription(`Ai parcurs toate cele **${total}** intrebari si ai comparat raspunsurile cu regulamentul.`)
-      .setFooter({ text: "Poti relua oricand materialele si testul din Centrul de Instruire ANP." });
+      .setFooter({ text: "Poti reciti regulamentul oficial si relua oricand testul ANP." });
 
     await interaction.reply({ embeds: [feedback, result], flags: MessageFlags.Ephemeral });
     return;

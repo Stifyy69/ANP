@@ -1,31 +1,47 @@
-import type { Message, User } from "discord.js";
+import type { Message } from "discord.js";
 import { env } from "../../config/env.js";
 import { sanitizeIcMessage } from "../../services/discordText.js";
 import { getGradeRole } from "../../services/gradeService.js";
 
-function getMentionedUsersInOrder(message: Message<true>): User[] {
-  const users: User[] = [];
-  const seen = new Set<string>();
+type MentionTarget =
+  | { type: "user"; id: string }
+  | { type: "role"; id: string; name: string };
 
-  // Luam tag-urile direct din mesaj ca sa pastram ordinea in care au fost scrise.
-  for (const match of message.content.matchAll(/<@!?(\d+)>/g)) {
+function getMentionTargetsInOrder(message: Message<true>): MentionTarget[] {
+  const targets: MentionTarget[] = [];
+  const seenUsers = new Set<string>();
+  const seenRoles = new Set<string>();
+
+  // Pastram ordinea exacta in care au fost scrise tag-urile in mesaj.
+  for (const match of message.content.matchAll(/<@!?(\d+)>|<@&(\d+)>/g)) {
     const userId = match[1];
+    const roleId = match[2];
 
-    if (!userId || userId === message.author.id || seen.has(userId)) {
+    if (userId) {
+      if (userId === message.author.id || seenUsers.has(userId) || !message.mentions.users.has(userId)) {
+        continue;
+      }
+
+      seenUsers.add(userId);
+      targets.push({ type: "user", id: userId });
       continue;
     }
 
-    const user = message.mentions.users.get(userId);
-
-    if (!user) {
+    if (!roleId || seenRoles.has(roleId)) {
       continue;
     }
 
-    seen.add(userId);
-    users.push(user);
+    const role = message.mentions.roles.get(roleId) ?? message.guild.roles.cache.get(roleId);
+
+    if (!role) {
+      continue;
+    }
+
+    seenRoles.add(roleId);
+    targets.push({ type: "role", id: roleId, name: role.name });
   }
 
-  return users;
+  return targets;
 }
 
 export async function handleChatIcMessage(message: Message): Promise<void> {
@@ -45,15 +61,21 @@ export async function handleChatIcMessage(message: Message): Promise<void> {
     return;
   }
 
-  const mentionedUsers = getMentionedUsersInOrder(message);
+  const mentionTargets = getMentionTargetsInOrder(message);
+  const mentionedUserIds = mentionTargets
+    .filter((target): target is Extract<MentionTarget, { type: "user" }> => target.type === "user")
+    .map((target) => target.id);
   const text = sanitizeIcMessage(message) || "...";
   const authorMention = `**<@${message.author.id}>**`;
   const gradeMention = `**<@&${grade.id}>**`;
+  const mentionText = mentionTargets
+    .map((target) => target.type === "user"
+      ? `**<@${target.id}>**`
+      : `**@\u200b${target.name}**`)
+    .join(" ");
 
-  const content = mentionedUsers.length > 0
-    ? `${gradeMention} | ${authorMention} mentioneaza pe ${mentionedUsers
-        .map((user) => `**<@${user.id}>**`)
-        .join(" ")} si spune : ${text}`
+  const content = mentionTargets.length > 0
+    ? `${gradeMention} | ${authorMention} mentioneaza pe ${mentionText} si spune : ${text}`
     : `${gradeMention} | ${authorMention} spune : ${text}`;
 
   // Mesajul original este sters doar dupa ce am extras toate datele necesare.
@@ -71,7 +93,7 @@ export async function handleChatIcMessage(message: Message): Promise<void> {
     allowedMentions: {
       parse: [],
       roles: [grade.id],
-      users: [message.author.id, ...mentionedUsers.map((user) => user.id)],
+      users: [message.author.id, ...mentionedUserIds],
       repliedUser: false,
     },
   });
