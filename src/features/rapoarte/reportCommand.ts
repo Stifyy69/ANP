@@ -105,14 +105,12 @@ function periodTitle(period: StatsPeriod, year: number): string {
 export async function registerReportCommand(guild: Guild): Promise<void> {
   const commands = await guild.commands.fetch();
   const existing = commands.find((command) => command.name === commandData.name);
-  const data = commandData.toJSON();
 
   if (existing) {
-    await existing.edit(data);
-    return;
+    await existing.delete();
   }
 
-  await guild.commands.create(data);
+  await guild.commands.create(commandData);
 }
 
 export async function handleReportCommand(interaction: ChatInputCommandInteraction): Promise<void> {
