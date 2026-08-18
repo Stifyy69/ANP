@@ -9,6 +9,7 @@ export function createTextField(options: {
   label: string;
   customId: string;
   placeholder?: string;
+  value?: string;
   style?: TextInputStyle;
   required?: boolean;
 }): LabelBuilder {
@@ -21,6 +22,10 @@ export function createTextField(options: {
     input.setPlaceholder(options.placeholder);
   }
 
+  if (options.value) {
+    input.setValue(options.value);
+  }
+
   return new LabelBuilder().setLabel(options.label).setTextInputComponent(input);
 }
 
@@ -28,6 +33,7 @@ export function createUserField(options: {
   label: string;
   customId: string;
   placeholder?: string;
+  defaultUserId?: string;
   required?: boolean;
 }): LabelBuilder {
   const required = options.required ?? false;
@@ -40,6 +46,10 @@ export function createUserField(options: {
 
   if (options.placeholder) {
     select.setPlaceholder(options.placeholder);
+  }
+
+  if (options.defaultUserId) {
+    select.setDefaultUsers(options.defaultUserId);
   }
 
   return new LabelBuilder().setLabel(options.label).setUserSelectMenuComponent(select);
