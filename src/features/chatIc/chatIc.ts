@@ -4,7 +4,11 @@ import { sanitizeIcMessage } from "../../services/discordText.js";
 import { getGradeRole } from "../../services/gradeService.js";
 
 export async function handleChatIcMessage(message: Message): Promise<void> {
-  if (message.author.bot || message.channelId !== env.chatIcChannelId || !message.inGuild()) {
+  if (message.author.bot || message.channelId !== env.chatIcChannelId) {
+    return;
+  }
+
+  if (!message.inGuild() || message.guildId !== env.guildId) {
     return;
   }
 
