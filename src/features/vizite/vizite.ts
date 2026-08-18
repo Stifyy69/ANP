@@ -7,6 +7,12 @@ import {
   type ModalSubmitInteraction,
 } from "discord.js";
 import { env } from "../../config/env.js";
+import {
+  formatDossierId,
+  nextDossierNumber,
+  registerReport,
+} from "../../database/database.js";
+import { ensureReportsPanel } from "../rapoarte/reportsPanel.js";
 import { sanitizeFormText } from "../../services/discordText.js";
 import { getGradeRole } from "../../services/gradeService.js";
 import { sendActionLog } from "../../services/logService.js";
@@ -103,9 +109,21 @@ export async function handleVizitaSubmit(interaction: ModalSubmitInteraction): P
     return;
   }
 
+  let dossierNumber: number;
+
+  try {
+    dossierNumber = await nextDossierNumber("vizita");
+  } catch (error) {
+    console.error("Nu am putut genera dosarul de vizita:", error);
+    await interaction.editReply("Registrul ANP nu este disponibil momentan. Vizita nu a fost inregistrata.");
+    return;
+  }
+
+  const dossierId = formatDossierId("vizita", dossierNumber);
   const agents = [`<@${member.id}>`, secondary ? `<@${secondary.id}>` : null].filter(Boolean).join("  ");
   const allowedUsers = [member.id, secondary?.id].filter((id): id is string => Boolean(id));
   const embed = createVizitaEmbed({
+    dossierId,
     gradeName: grade.name,
     memberId: member.id,
     visitor,
@@ -114,7 +132,7 @@ export async function handleVizitaSubmit(interaction: ModalSubmitInteraction): P
     dateTime,
   });
 
-  await channel.send({
+  const report = await channel.send({
     embeds: [embed],
     components: [createEditRow(ids.vizitaEditButton)],
     allowedMentions: {
@@ -123,6 +141,25 @@ export async function handleVizitaSubmit(interaction: ModalSubmitInteraction): P
     },
   });
 
+  try {
+    await registerReport({
+      messageId: report.id,
+      reportType: "vizita",
+      dossierNumber,
+      primaryUserId: member.id,
+      secondaryUserId: secondary && !secondary.user.bot ? secondary.id : null,
+      approved: true,
+    });
+  } catch (error) {
+    console.error("Nu am putut arhiva vizita in baza de date:", error);
+    await report.delete().catch(() => null);
+    await interaction.editReply("Vizita nu a putut fi arhivata in registrul ANP.");
+    return;
+  }
+
+  await ensureReportsPanel(interaction.client).catch((error) => {
+    console.error("Nu am putut actualiza panoul de rapoarte:", error);
+  });
   await sendActionLog(interaction.client, "vizita", member, channel.id);
-  await interaction.editReply("Vizita a fost creata.");
+  await interaction.editReply(`Vizita a fost inregistrata in registrul **${dossierId}**.`);
 }
