@@ -131,8 +131,9 @@ export async function handleCarceraEditSubmit(interaction: ModalSubmitInteractio
   const detainee = sanitizeFormText(interaction.fields.getTextInputValue(ids.carceraDetainee));
   const months = sanitizeFormText(interaction.fields.getTextInputValue(ids.carceraMonths));
   const reason = sanitizeFormText(interaction.fields.getTextInputValue(ids.carceraReason));
+  const dossierId = getReportDossierId(report) ?? undefined;
   const embed = createCarceraEmbed({
-    dossierId: getReportDossierId(report) ?? undefined,
+    dossierId,
     gradeName: grade.name,
     memberId: member.id,
     detainee,
@@ -150,6 +151,6 @@ export async function handleCarceraEditSubmit(interaction: ModalSubmitInteractio
     },
   });
 
-  await sendEditLog(interaction.client, "carcera", member, channel.id, report.url);
+  await sendEditLog(interaction.client, "carcera", member, channel.id, dossierId, report.url);
   await interaction.editReply("Dosarul disciplinar a fost modificat.");
 }
