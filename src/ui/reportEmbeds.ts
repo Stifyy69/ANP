@@ -15,7 +15,7 @@ function baseReport(
 }
 
 export function createTransportEmbed(options: {
-  dossierId: string;
+  dossierId?: string;
   gradeName: string;
   memberId: string;
   agents: string;
@@ -23,7 +23,11 @@ export function createTransportEmbed(options: {
   detainee: string;
   timestamp?: Date;
 }): EmbedBuilder {
-  return baseReport(`DOSAR ${options.dossierId} | Transport penitenciar`, 0x3b82f6, options.gradeName, options.memberId, options.timestamp)
+  const title = options.dossierId
+    ? `DOSAR ${options.dossierId} | Transport penitenciar`
+    : "Transport penitenciar";
+
+  return baseReport(title, 0x3b82f6, options.gradeName, options.memberId, options.timestamp)
     .addFields(
       { name: "Agent responsabil", value: options.agents },
       { name: "Preluat de la", value: options.pickup, inline: true },
@@ -33,7 +37,7 @@ export function createTransportEmbed(options: {
 }
 
 export function createVizitaEmbed(options: {
-  dossierId: string;
+  dossierId?: string;
   gradeName: string;
   memberId: string;
   visitor: string;
@@ -42,7 +46,11 @@ export function createVizitaEmbed(options: {
   dateTime: string;
   timestamp?: Date;
 }): EmbedBuilder {
-  return baseReport(`REGISTRU ${options.dossierId} | Vizita detinut`, 0x8b5cf6, options.gradeName, options.memberId, options.timestamp)
+  const title = options.dossierId
+    ? `REGISTRU ${options.dossierId} | Vizita detinut`
+    : "Vizita detinut";
+
+  return baseReport(title, 0x8b5cf6, options.gradeName, options.memberId, options.timestamp)
     .addFields(
       { name: "Nume vizitator", value: options.visitor, inline: true },
       { name: "Nume detinut", value: options.detainee, inline: true },
@@ -53,7 +61,7 @@ export function createVizitaEmbed(options: {
 }
 
 export function createCarceraEmbed(options: {
-  dossierId: string;
+  dossierId?: string;
   gradeName: string;
   memberId: string;
   detainee: string;
@@ -61,7 +69,11 @@ export function createCarceraEmbed(options: {
   reason: string;
   timestamp?: Date;
 }): EmbedBuilder {
-  return baseReport(`DOSAR DISCIPLINAR ${options.dossierId}`, 0xf59e0b, options.gradeName, options.memberId, options.timestamp)
+  const title = options.dossierId
+    ? `DOSAR DISCIPLINAR ${options.dossierId}`
+    : "Prelungire carcera";
+
+  return baseReport(title, 0xf59e0b, options.gradeName, options.memberId, options.timestamp)
     .addFields(
       { name: "Agent responsabil", value: `<@${options.memberId}>` },
       { name: "Detinut", value: options.detainee, inline: true },
