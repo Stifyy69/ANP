@@ -26,6 +26,7 @@ export const env = {
   guildId: getRequiredEnv("GUILD_ID"),
   chatIcChannelId: getRequiredEnv("CHAT_IC_CHANNEL_ID"),
   receptieChannelId: getRequiredEnv("RECEPTIE_CHANNEL_ID"),
+  invatatChannelId: getRequiredEnv("INVATAT_CHANNEL_ID"),
   transportChannelId: getRequiredEnv("TRANSPORT_CHANNEL_ID"),
   viziteChannelId: getRequiredEnv("VIZITE_CHANNEL_ID"),
   carceraChannelId: getRequiredEnv("CARCERA_CHANNEL_ID"),
