@@ -1,7 +1,4 @@
 import {
-  ActionRowBuilder,
-  ButtonBuilder,
-  ButtonStyle,
   ChannelType,
   MessageFlags,
   ModalBuilder,
@@ -16,6 +13,7 @@ import { getGradeRole } from "../../services/gradeService.js";
 import { sendActionLog } from "../../services/logService.js";
 import { ids } from "../../ui/ids.js";
 import { createTextField } from "../../ui/modalFields.js";
+import { createCarceraPendingRow } from "../../ui/reportButtons.js";
 import { createCarceraEmbed } from "../../ui/reportEmbeds.js";
 
 async function getMember(interaction: ButtonInteraction | ModalSubmitInteraction): Promise<GuildMember | null> {
@@ -91,20 +89,9 @@ export async function handleCarceraSubmit(interaction: ModalSubmitInteraction): 
     reason,
   });
 
-  const decisionRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
-    new ButtonBuilder()
-      .setCustomId(ids.carceraApprove)
-      .setLabel("Aprobat")
-      .setStyle(ButtonStyle.Success),
-    new ButtonBuilder()
-      .setCustomId(ids.carceraReject)
-      .setLabel("Respins")
-      .setStyle(ButtonStyle.Danger),
-  );
-
   await channel.send({
     embeds: [embed],
-    components: [decisionRow],
+    components: [createCarceraPendingRow()],
     allowedMentions: {
       parse: [],
       users: [member.id],

@@ -9,7 +9,14 @@ import {
 import { env } from "../../config/env.js";
 import { sanitizeFormText } from "../../services/discordText.js";
 import { getGradeRole } from "../../services/gradeService.js";
-import { sendActionLog } from "../../services/logService.js";
+import { sendEditLog } from "../../services/logService.js";
+import {
+  getMentionIds,
+  getMessageIdFromModal,
+  getReportCreatorId,
+  getReportField,
+  getReportTimestamp,
+} from "../../services/reportMessage.js";
 import { ids } from "../../ui/ids.js";
 import { createTextField, createUserField } from "../../ui/modalFields.js";
 import { createEditRow } from "../../ui/reportButtons.js";
@@ -23,44 +30,77 @@ async function getMember(interaction: ButtonInteraction | ModalSubmitInteraction
   return interaction.guild.members.fetch(interaction.user.id).catch(() => null);
 }
 
-export async function showTransportModal(interaction: ButtonInteraction): Promise<void> {
-  const member = await getMember(interaction);
+export async function showTransportEditModal(interaction: ButtonInteraction): Promise<void> {
+  if (interaction.channelId !== env.transportChannelId) {
+    return;
+  }
 
-  if (!member || !getGradeRole(member)) {
+  const creatorId = getReportCreatorId(interaction.message);
+
+  if (!creatorId || creatorId !== interaction.user.id) {
     await interaction.reply({
-      content: "Nu ai un grad configurat pentru sistemul de transporturi.",
+      content: "Doar persoana care a creat acest transport il poate modifica.",
       flags: MessageFlags.Ephemeral,
     });
     return;
   }
 
+  const agents = getReportField(interaction.message, "Agent responsabil");
+  const pickup = getReportField(interaction.message, "Preluat de la");
+  const detainee = getReportField(interaction.message, "Nume detinut");
+
+  if (!agents || !pickup || !detainee) {
+    await interaction.reply({
+      content: "Nu am putut citi datele acestui transport.",
+      flags: MessageFlags.Ephemeral,
+    });
+    return;
+  }
+
+  const secondaryId = getMentionIds(agents).find((userId) => userId !== creatorId);
   const modal = new ModalBuilder()
-    .setCustomId(ids.transportModal)
-    .setTitle("Creeaza transport")
+    .setCustomId(`${ids.transportEditModalPrefix}${interaction.message.id}`)
+    .setTitle("Modifica transport")
     .addLabelComponents(
       createUserField({
         label: "Agent secundar",
         customId: ids.transportSecondary,
         placeholder: "Selecteaza un membru",
+        defaultUserId: secondaryId,
         required: false,
       }),
       createTextField({
         label: "Preluat de la",
         customId: ids.transportPickup,
-        placeholder: "Ex: Tudor Mihai / IPJ",
+        value: pickup,
       }),
       createTextField({
         label: "Nume detinut",
         customId: ids.transportDetainee,
-        placeholder: "Ex: Radu Florin 1010",
+        value: detainee,
       }),
     );
 
   await interaction.showModal(modal);
 }
 
-export async function handleTransportSubmit(interaction: ModalSubmitInteraction): Promise<void> {
+export async function handleTransportEditSubmit(interaction: ModalSubmitInteraction): Promise<void> {
   await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+
+  const messageId = getMessageIdFromModal(interaction.customId, ids.transportEditModalPrefix);
+  const channel = await interaction.client.channels.fetch(env.transportChannelId).catch(() => null);
+
+  if (!messageId || !channel || channel.type !== ChannelType.GuildText || channel.guildId !== env.guildId) {
+    await interaction.editReply("Nu am putut gasi raportul de transport.");
+    return;
+  }
+
+  const report = await channel.messages.fetch(messageId).catch(() => null);
+
+  if (!report || getReportCreatorId(report) !== interaction.user.id) {
+    await interaction.editReply("Doar persoana care a creat acest transport il poate modifica.");
+    return;
+  }
 
   const member = await getMember(interaction);
   const grade = member ? getGradeRole(member) : null;
@@ -81,7 +121,6 @@ export async function handleTransportSubmit(interaction: ModalSubmitInteraction)
 
     secondary = await interaction.guild?.members.fetch(selectedUser.id).catch(() => null) ?? null;
 
-    // Botii pot fi folositi ca tag de rezerva, oamenii trebuie sa aiba grad configurat.
     if (!secondary || (!secondary.user.bot && !getGradeRole(secondary))) {
       await interaction.editReply("Agentul secundar selectat nu este un agent valid.");
       return;
@@ -90,13 +129,6 @@ export async function handleTransportSubmit(interaction: ModalSubmitInteraction)
 
   const pickup = sanitizeFormText(interaction.fields.getTextInputValue(ids.transportPickup));
   const detainee = sanitizeFormText(interaction.fields.getTextInputValue(ids.transportDetainee));
-  const channel = await interaction.client.channels.fetch(env.transportChannelId).catch(() => null);
-
-  if (!channel || channel.type !== ChannelType.GuildText || channel.guildId !== env.guildId) {
-    await interaction.editReply("Canalul de transporturi nu este configurat corect.");
-    return;
-  }
-
   const agents = [`<@${member.id}>`, secondary ? `<@${secondary.id}>` : null].filter(Boolean).join("  ");
   const allowedUsers = [member.id, secondary?.id].filter((id): id is string => Boolean(id));
   const embed = createTransportEmbed({
@@ -105,9 +137,10 @@ export async function handleTransportSubmit(interaction: ModalSubmitInteraction)
     agents,
     pickup,
     detainee,
+    timestamp: getReportTimestamp(report),
   });
 
-  await channel.send({
+  await report.edit({
     embeds: [embed],
     components: [createEditRow(ids.transportEditButton)],
     allowedMentions: {
@@ -116,6 +149,6 @@ export async function handleTransportSubmit(interaction: ModalSubmitInteraction)
     },
   });
 
-  await sendActionLog(interaction.client, "transport", member, channel.id);
-  await interaction.editReply("Transportul a fost creat.");
+  await sendEditLog(interaction.client, "transport", member, channel.id, report.url);
+  await interaction.editReply("Transportul a fost modificat.");
 }

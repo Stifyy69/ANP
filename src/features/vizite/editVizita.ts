@@ -9,7 +9,14 @@ import {
 import { env } from "../../config/env.js";
 import { sanitizeFormText } from "../../services/discordText.js";
 import { getGradeRole } from "../../services/gradeService.js";
-import { sendActionLog } from "../../services/logService.js";
+import { sendEditLog } from "../../services/logService.js";
+import {
+  getMentionIds,
+  getMessageIdFromModal,
+  getReportCreatorId,
+  getReportField,
+  getReportTimestamp,
+} from "../../services/reportMessage.js";
 import { ids } from "../../ui/ids.js";
 import { createTextField, createUserField } from "../../ui/modalFields.js";
 import { createEditRow } from "../../ui/reportButtons.js";
@@ -23,49 +30,83 @@ async function getMember(interaction: ButtonInteraction | ModalSubmitInteraction
   return interaction.guild.members.fetch(interaction.user.id).catch(() => null);
 }
 
-export async function showVizitaModal(interaction: ButtonInteraction): Promise<void> {
-  const member = await getMember(interaction);
+export async function showVizitaEditModal(interaction: ButtonInteraction): Promise<void> {
+  if (interaction.channelId !== env.viziteChannelId) {
+    return;
+  }
 
-  if (!member || !getGradeRole(member)) {
+  const creatorId = getReportCreatorId(interaction.message);
+
+  if (!creatorId || creatorId !== interaction.user.id) {
     await interaction.reply({
-      content: "Nu ai un grad configurat pentru sistemul de vizite.",
+      content: "Doar persoana care a creat aceasta vizita o poate modifica.",
       flags: MessageFlags.Ephemeral,
     });
     return;
   }
 
+  const visitor = getReportField(interaction.message, "Nume vizitator");
+  const detainee = getReportField(interaction.message, "Nume detinut");
+  const agents = getReportField(interaction.message, "Agent operativ responsabil");
+  const dateTime = getReportField(interaction.message, "Data si ora");
+
+  if (!visitor || !detainee || !agents || !dateTime) {
+    await interaction.reply({
+      content: "Nu am putut citi datele acestei vizite.",
+      flags: MessageFlags.Ephemeral,
+    });
+    return;
+  }
+
+  const secondaryId = getMentionIds(agents).find((userId) => userId !== creatorId);
   const modal = new ModalBuilder()
-    .setCustomId(ids.vizitaModal)
-    .setTitle("Creeaza vizita")
+    .setCustomId(`${ids.vizitaEditModalPrefix}${interaction.message.id}`)
+    .setTitle("Modifica vizita")
     .addLabelComponents(
       createUserField({
         label: "Agent secundar",
         customId: ids.vizitaSecondary,
         placeholder: "Selecteaza un membru",
+        defaultUserId: secondaryId,
         required: false,
       }),
       createTextField({
         label: "Nume vizitator",
         customId: ids.vizitaVisitor,
-        placeholder: "Ex: Marus Malius 57255",
+        value: visitor,
       }),
       createTextField({
         label: "Nume detinut",
         customId: ids.vizitaDetainee,
-        placeholder: "Ex: Radu Florin 1010",
+        value: detainee,
       }),
       createTextField({
         label: "Data si ora",
         customId: ids.vizitaDateTime,
-        placeholder: "Ex: 18.08.2026 20:10-20:20",
+        value: dateTime,
       }),
     );
 
   await interaction.showModal(modal);
 }
 
-export async function handleVizitaSubmit(interaction: ModalSubmitInteraction): Promise<void> {
+export async function handleVizitaEditSubmit(interaction: ModalSubmitInteraction): Promise<void> {
   await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+
+  const messageId = getMessageIdFromModal(interaction.customId, ids.vizitaEditModalPrefix);
+  const channel = await interaction.client.channels.fetch(env.viziteChannelId).catch(() => null);
+
+  if (!messageId || !channel || channel.type !== ChannelType.GuildText || channel.guildId !== env.guildId) {
+    await interaction.editReply("Nu am putut gasi raportul de vizita.");
+    return;
+  }
+
+  const report = await channel.messages.fetch(messageId).catch(() => null);
+
+  if (!report || getReportCreatorId(report) !== interaction.user.id) {
+    await interaction.editReply("Doar persoana care a creat aceasta vizita o poate modifica.");
+    return;
+  }
 
   const member = await getMember(interaction);
   const grade = member ? getGradeRole(member) : null;
@@ -86,7 +127,6 @@ export async function handleVizitaSubmit(interaction: ModalSubmitInteraction): P
 
     secondary = await interaction.guild?.members.fetch(selectedUser.id).catch(() => null) ?? null;
 
-    // Botii pot fi folositi ca tag de rezerva, oamenii trebuie sa aiba grad configurat.
     if (!secondary || (!secondary.user.bot && !getGradeRole(secondary))) {
       await interaction.editReply("Agentul secundar selectat nu este un agent valid.");
       return;
@@ -96,13 +136,6 @@ export async function handleVizitaSubmit(interaction: ModalSubmitInteraction): P
   const visitor = sanitizeFormText(interaction.fields.getTextInputValue(ids.vizitaVisitor));
   const detainee = sanitizeFormText(interaction.fields.getTextInputValue(ids.vizitaDetainee));
   const dateTime = sanitizeFormText(interaction.fields.getTextInputValue(ids.vizitaDateTime));
-  const channel = await interaction.client.channels.fetch(env.viziteChannelId).catch(() => null);
-
-  if (!channel || channel.type !== ChannelType.GuildText || channel.guildId !== env.guildId) {
-    await interaction.editReply("Canalul de vizite nu este configurat corect.");
-    return;
-  }
-
   const agents = [`<@${member.id}>`, secondary ? `<@${secondary.id}>` : null].filter(Boolean).join("  ");
   const allowedUsers = [member.id, secondary?.id].filter((id): id is string => Boolean(id));
   const embed = createVizitaEmbed({
@@ -112,9 +145,10 @@ export async function handleVizitaSubmit(interaction: ModalSubmitInteraction): P
     agents,
     detainee,
     dateTime,
+    timestamp: getReportTimestamp(report),
   });
 
-  await channel.send({
+  await report.edit({
     embeds: [embed],
     components: [createEditRow(ids.vizitaEditButton)],
     allowedMentions: {
@@ -123,6 +157,6 @@ export async function handleVizitaSubmit(interaction: ModalSubmitInteraction): P
     },
   });
 
-  await sendActionLog(interaction.client, "vizita", member, channel.id);
-  await interaction.editReply("Vizita a fost creata.");
+  await sendEditLog(interaction.client, "vizita", member, channel.id, report.url);
+  await interaction.editReply("Vizita a fost modificata.");
 }

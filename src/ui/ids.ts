@@ -4,6 +4,8 @@ export const ids = {
   transportSecondary: "anp:transport:secondary",
   transportPickup: "anp:transport:pickup",
   transportDetainee: "anp:transport:detainee",
+  transportEditButton: "anp:transport:edit",
+  transportEditModalPrefix: "anp:transport:edit-modal:",
 
   vizitaButton: "anp:vizita:create",
   vizitaModal: "anp:vizita:modal",
@@ -11,12 +13,16 @@ export const ids = {
   vizitaVisitor: "anp:vizita:visitor",
   vizitaDetainee: "anp:vizita:detainee",
   vizitaDateTime: "anp:vizita:datetime",
+  vizitaEditButton: "anp:vizita:edit",
+  vizitaEditModalPrefix: "anp:vizita:edit-modal:",
 
   carceraButton: "anp:carcera:create",
   carceraModal: "anp:carcera:modal",
   carceraDetainee: "anp:carcera:detainee",
   carceraMonths: "anp:carcera:months",
   carceraReason: "anp:carcera:reason",
+  carceraEditButton: "anp:carcera:edit",
+  carceraEditModalPrefix: "anp:carcera:edit-modal:",
   carceraApprove: "anp:carcera:approve",
   carceraReject: "anp:carcera:reject",
 } as const;

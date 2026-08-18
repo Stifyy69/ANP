@@ -1,10 +1,13 @@
 import {
+  EmbedBuilder,
   MessageFlags,
   type ButtonInteraction,
   type GuildMember,
 } from "discord.js";
 import { env } from "../../config/env.js";
 import { sendCarceraDecisionLog, type CarceraDecision } from "../../services/logService.js";
+import { messageHasButton } from "../../services/reportMessage.js";
+import { ids } from "../../ui/ids.js";
 
 const decisionsInProgress = new Set<string>();
 
@@ -34,6 +37,14 @@ export async function handleCarceraDecision(
     return;
   }
 
+  if (!messageHasButton(interaction.message, ids.carceraApprove) || !messageHasButton(interaction.message, ids.carceraReject)) {
+    await interaction.reply({
+      content: "Aceasta prelungire are deja o decizie.",
+      flags: MessageFlags.Ephemeral,
+    });
+    return;
+  }
+
   const messageId = interaction.message.id;
 
   if (decisionsInProgress.has(messageId)) {
@@ -49,19 +60,38 @@ export async function handleCarceraDecision(
   try {
     await interaction.deferUpdate();
 
-    // Dupa decizie scoatem butoanele si lasam doar reactia finala.
-    await interaction.message.edit({ components: [] });
-    await interaction.message.react(decision === "aprobat" ? "✅" : "❌");
+    const currentEmbed = interaction.message.embeds[0];
+
+    if (!currentEmbed) {
+      throw new Error("Prelungirea nu are embed-ul asteptat.");
+    }
+
+    const approved = decision === "aprobat";
+    const decidedAt = new Date();
+    const updatedEmbed = EmbedBuilder.from(currentEmbed)
+      .setColor(approved ? 0x22c55e : 0xef4444)
+      .setFooter({
+        text: `${approved ? "✅ Aprobata" : "❌ Respinsa"} de ${member.displayName}`,
+      })
+      .setTimestamp(decidedAt);
+
+    // Dupa decizie raportul devine final si nu mai poate fi modificat.
+    await interaction.message.edit({
+      embeds: [updatedEmbed],
+      components: [],
+    });
+    await interaction.message.react(approved ? "✅" : "❌");
 
     await sendCarceraDecisionLog(
       interaction.client,
       decision,
       member,
       interaction.channelId,
+      interaction.message.url,
     );
 
     await interaction.followUp({
-      content: decision === "aprobat" ? "Prelungirea a fost aprobata." : "Prelungirea a fost respinsa.",
+      content: approved ? "Prelungirea a fost aprobata." : "Prelungirea a fost respinsa.",
       flags: MessageFlags.Ephemeral,
     });
   } finally {
