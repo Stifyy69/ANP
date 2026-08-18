@@ -10,41 +10,7 @@ import {
 import { env } from "../config/env.js";
 import { ids } from "./ids.js";
 
-type PanelConfig = {
-  title: string;
-  description: string;
-  buttonId: string;
-  buttonLabel: string;
-  buttonStyle: ButtonStyle;
-  color: number;
-};
-
-const panels: PanelConfig[] = [
-  {
-    title: "🚓 Transporturi",
-    description: "Creeaza un raport nou de transport. Agentul principal si gradul sunt luate automat din Discord.",
-    buttonId: ids.transportButton,
-    buttonLabel: "Creeaza transport",
-    buttonStyle: ButtonStyle.Primary,
-    color: 0x3b82f6,
-  },
-  {
-    title: "👀 Vizite",
-    description: "Inregistreaza rapid o vizita si selecteaza agentul secundar direct din lista de membri.",
-    buttonId: ids.vizitaButton,
-    buttonLabel: "Creeaza vizita",
-    buttonStyle: ButtonStyle.Success,
-    color: 0x8b5cf6,
-  },
-  {
-    title: "⛓️ Carcera si prelungiri",
-    description: "Trimite o prelungire la aprobare. Dupa postare apar butoanele Aprobat si Respins.",
-    buttonId: ids.carceraButton,
-    buttonLabel: "Creeaza prelungire",
-    buttonStyle: ButtonStyle.Secondary,
-    color: 0xf59e0b,
-  },
-];
+const createButtonIds = [ids.transportButton, ids.vizitaButton, ids.carceraButton];
 
 function jsonHasButton(value: unknown, buttonId: string): boolean {
   if (Array.isArray(value)) {
@@ -68,9 +34,12 @@ function hasButton(message: Message, buttonId: string): boolean {
   return message.components.some((component) => jsonHasButton(component.toJSON(), buttonId));
 }
 
+function hasAllCreateButtons(message: Message): boolean {
+  return createButtonIds.every((buttonId) => hasButton(message, buttonId));
+}
+
 async function removeOldPanels(client: Client<true>): Promise<void> {
   const oldChannels = [env.transportChannelId, env.viziteChannelId, env.carceraChannelId];
-  const oldButtonIds = [ids.transportButton, ids.vizitaButton, ids.carceraButton];
 
   for (const channelId of oldChannels) {
     const channel = await client.channels.fetch(channelId).catch(() => null);
@@ -90,14 +59,54 @@ async function removeOldPanels(client: Client<true>): Promise<void> {
         continue;
       }
 
-      const isOldPanel = oldButtonIds.some((buttonId) => hasButton(message, buttonId));
-
-      if (isOldPanel) {
+      if (createButtonIds.some((buttonId) => hasButton(message, buttonId))) {
         // Butoanele de creare trebuie sa ramana doar in receptie.
         await message.delete().catch(() => null);
       }
     }
   }
+}
+
+function buildReceptionPanel() {
+  const embed = new EmbedBuilder()
+    .setColor(0x1f2937)
+    .setTitle("🏛️ Receptie ANP")
+    .setDescription("Alege operatiunea pe care vrei sa o inregistrezi. Raportul va fi trimis automat in canalul corect.")
+    .addFields(
+      {
+        name: "🚓 Transport penitenciar",
+        value: "Creeaza un transport si selecteaza optional agentul secundar.",
+      },
+      {
+        name: "👀 Vizita detinut",
+        value: "Inregistreaza vizitatorul, detinutul si intervalul vizitei.",
+      },
+      {
+        name: "⛓️ Prelungire carcera",
+        value: "Trimite o prelungire care trebuie aprobata sau respinsa de un grad autorizat.",
+      },
+    )
+    .setFooter({ text: "Receptie ANP" });
+
+  const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
+    new ButtonBuilder()
+      .setCustomId(ids.transportButton)
+      .setLabel("Transport")
+      .setEmoji("🚓")
+      .setStyle(ButtonStyle.Primary),
+    new ButtonBuilder()
+      .setCustomId(ids.vizitaButton)
+      .setLabel("Vizita")
+      .setEmoji("👀")
+      .setStyle(ButtonStyle.Success),
+    new ButtonBuilder()
+      .setCustomId(ids.carceraButton)
+      .setLabel("Prelungire")
+      .setEmoji("⛓️")
+      .setStyle(ButtonStyle.Secondary),
+  );
+
+  return { embeds: [embed], components: [row] };
 }
 
 export async function ensurePanels(client: Client<true>): Promise<void> {
@@ -111,29 +120,35 @@ export async function ensurePanels(client: Client<true>): Promise<void> {
   }
 
   const recentMessages = await channel.messages.fetch({ limit: 100 }).catch(() => null);
+  let mainPanel: Message | null = null;
 
-  for (const panel of panels) {
-    const alreadyExists = recentMessages?.some(
-      (message) => message.author.id === client.user.id && hasButton(message, panel.buttonId),
-    );
+  if (recentMessages) {
+    for (const message of recentMessages.values()) {
+      if (message.author.id !== client.user.id) {
+        continue;
+      }
 
-    if (alreadyExists) {
-      continue;
+      const isReceptionPanel = createButtonIds.some((buttonId) => hasButton(message, buttonId));
+
+      if (!isReceptionPanel) {
+        continue;
+      }
+
+      if (!mainPanel && hasAllCreateButtons(message)) {
+        mainPanel = message;
+        continue;
+      }
+
+      await message.delete().catch(() => null);
     }
-
-    const embed = new EmbedBuilder()
-      .setColor(panel.color)
-      .setTitle(panel.title)
-      .setDescription(panel.description)
-      .setFooter({ text: "Receptie ANP" });
-
-    const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
-      new ButtonBuilder()
-        .setCustomId(panel.buttonId)
-        .setLabel(panel.buttonLabel)
-        .setStyle(panel.buttonStyle),
-    );
-
-    await channel.send({ embeds: [embed], components: [row] });
   }
+
+  const panel = buildReceptionPanel();
+
+  if (mainPanel) {
+    await mainPanel.edit(panel).catch(() => null);
+    return;
+  }
+
+  await channel.send(panel);
 }
