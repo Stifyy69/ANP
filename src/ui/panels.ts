@@ -71,22 +71,24 @@ function buildReceptionPanel() {
   const embed = new EmbedBuilder()
     .setColor(0x1f2937)
     .setTitle("🏛️ Receptie ANP")
-    .setDescription("Alege operatiunea pe care vrei sa o inregistrezi. Raportul va fi trimis automat in canalul corect.")
+    .setDescription(
+      "Selecteaza procedura pe care doresti sa o inregistrezi. Informatiile completate vor fi verificate si atasate automat in dosarul corespunzator.",
+    )
     .addFields(
       {
         name: "🚓 Transport penitenciar",
-        value: "Creeaza un transport si selecteaza optional agentul secundar.",
+        value: "Inregistreaza efectuarea unui transport de detinuti si personalul responsabil de misiune.",
       },
       {
         name: "👀 Vizita detinut",
-        value: "Inregistreaza vizitatorul, detinutul si intervalul vizitei.",
+        value: "Inregistreaza o vizita, datele persoanei vizitatoare, detinutul si intervalul acordat.",
       },
       {
         name: "⛓️ Prelungire carcera",
-        value: "Trimite o prelungire care trebuie aprobata sau respinsa de un grad autorizat.",
+        value: "Inainteaza o solicitare de prelungire a perioadei de carcera. Cererea ramane in asteptare pana la solutionarea de catre un grad autorizat.",
       },
     )
-    .setFooter({ text: "Receptie ANP" });
+    .setFooter({ text: "Receptie ANP | Evidenta si inregistrare" });
 
   const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
     new ButtonBuilder()
