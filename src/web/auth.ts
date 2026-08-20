@@ -20,15 +20,14 @@ type AttemptState = {
 
 const loginAttempts = new Map<string, AttemptState>();
 
+function digest(value: string): Buffer {
+  return createHmac("sha256", env.webSessionSecret)
+    .update(value)
+    .digest();
+}
+
 function safeEqual(left: string, right: string): boolean {
-  const leftBuffer = Buffer.from(left);
-  const rightBuffer = Buffer.from(right);
-
-  if (leftBuffer.length !== rightBuffer.length) {
-    return false;
-  }
-
-  return timingSafeEqual(leftBuffer, rightBuffer);
+  return timingSafeEqual(digest(left), digest(right));
 }
 
 function signature(payload: string): string {
@@ -111,6 +110,10 @@ function getAttemptState(key: string): AttemptState {
   const now = Date.now();
   const existing = loginAttempts.get(key);
 
+  if (existing?.blockedUntil && existing.blockedUntil > now) {
+    return existing;
+  }
+
   if (!existing || now - existing.windowStartedAt > ATTEMPT_WINDOW_MS) {
     const fresh = {
       attempts: 0,
@@ -122,6 +125,12 @@ function getAttemptState(key: string): AttemptState {
   }
 
   return existing;
+}
+
+function secureCookieSuffix(): string {
+  return process.env.RAILWAY_ENVIRONMENT || process.env.NODE_ENV === "production"
+    ? "; Secure"
+    : "";
 }
 
 export function getLoginBlockSeconds(request: IncomingMessage): number {
@@ -168,13 +177,13 @@ export function setSessionCookie(response: ServerResponse): void {
   const token = makeSessionToken();
   response.setHeader(
     "Set-Cookie",
-    `${COOKIE_NAME}=${token}; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=${SESSION_DURATION_SECONDS}`,
+    `${COOKIE_NAME}=${token}; Path=/; HttpOnly${secureCookieSuffix()}; SameSite=Strict; Max-Age=${SESSION_DURATION_SECONDS}`,
   );
 }
 
 export function clearSessionCookie(response: ServerResponse): void {
   response.setHeader(
     "Set-Cookie",
-    `${COOKIE_NAME}=; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=0`,
+    `${COOKIE_NAME}=; Path=/; HttpOnly${secureCookieSuffix()}; SameSite=Strict; Max-Age=0`,
   );
 }
