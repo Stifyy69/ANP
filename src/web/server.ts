@@ -5,6 +5,13 @@ import path from "node:path";
 import type { Client } from "discord.js";
 import type { ReportType } from "../database/database.js";
 import {
+  getLoginBlockSeconds,
+  isAuthenticated,
+  setSessionCookie,
+  clearSessionCookie,
+  verifyAccessCode,
+} from "./auth.js";
+import {
   getDashboardData,
   getDossierDetails,
   getDossiersData,
@@ -35,6 +42,10 @@ function setCommonHeaders(response: ServerResponse): void {
   response.setHeader("X-Content-Type-Options", "nosniff");
   response.setHeader("X-Frame-Options", "DENY");
   response.setHeader("Referrer-Policy", "same-origin");
+  response.setHeader(
+    "Content-Security-Policy",
+    "default-src 'self'; img-src 'self' https: data:; style-src 'self'; script-src 'self'; connect-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'",
+  );
 }
 
 function sendJson(response: ServerResponse, statusCode: number, data: unknown): void {
@@ -56,17 +67,107 @@ async function sendFile(response: ServerResponse, fileName: string): Promise<voi
   response.end(content);
 }
 
+async function readJsonBody(request: IncomingMessage): Promise<Record<string, unknown>> {
+  const chunks: Buffer[] = [];
+  let size = 0;
+
+  for await (const chunk of request) {
+    const buffer = Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk);
+    size += buffer.length;
+
+    if (size > 4096) {
+      throw new Error("Cererea este prea mare.");
+    }
+
+    chunks.push(buffer);
+  }
+
+  if (chunks.length === 0) {
+    return {};
+  }
+
+  const parsed = JSON.parse(Buffer.concat(chunks).toString("utf8"));
+
+  if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed)) {
+    throw new Error("Corpul cererii nu este valid.");
+  }
+
+  return parsed as Record<string, unknown>;
+}
+
 function isReportType(value: string | null): value is ReportType {
   return value === "transport" || value === "vizita" || value === "carcera";
 }
 
+async function handleAuthApi(
+  request: IncomingMessage,
+  requestUrl: URL,
+  response: ServerResponse,
+): Promise<boolean> {
+  if (requestUrl.pathname === "/api/auth/status") {
+    sendJson(response, 200, { authenticated: isAuthenticated(request) });
+    return true;
+  }
+
+  if (requestUrl.pathname === "/api/auth/login") {
+    if (request.method !== "POST") {
+      sendJson(response, 405, { error: "Metoda nu este permisa." });
+      return true;
+    }
+
+    const blockedSeconds = getLoginBlockSeconds(request);
+
+    if (blockedSeconds > 0) {
+      sendJson(response, 429, {
+        error: `Prea multe incercari. Incearca din nou peste ${Math.ceil(blockedSeconds / 60)} minute.`,
+      });
+      return true;
+    }
+
+    const body = await readJsonBody(request);
+    const code = typeof body.code === "string" ? body.code : "";
+
+    if (!code || !verifyAccessCode(request, code)) {
+      const remainingBlock = getLoginBlockSeconds(request);
+      sendJson(response, remainingBlock > 0 ? 429 : 401, {
+        error: remainingBlock > 0
+          ? `Acces blocat temporar. Incearca din nou peste ${Math.ceil(remainingBlock / 60)} minute.`
+          : "Cod de acces incorect.",
+      });
+      return true;
+    }
+
+    setSessionCookie(response);
+    sendJson(response, 200, { authenticated: true });
+    return true;
+  }
+
+  if (requestUrl.pathname === "/api/auth/logout") {
+    if (request.method !== "POST") {
+      sendJson(response, 405, { error: "Metoda nu este permisa." });
+      return true;
+    }
+
+    clearSessionCookie(response);
+    sendJson(response, 200, { authenticated: false });
+    return true;
+  }
+
+  return false;
+}
+
 async function handleApi(
   client: Client<true>,
+  request: IncomingMessage,
   requestUrl: URL,
   response: ServerResponse,
 ): Promise<boolean> {
   if (!requestUrl.pathname.startsWith("/api/")) {
     return false;
+  }
+
+  if (await handleAuthApi(request, requestUrl, response)) {
+    return true;
   }
 
   if (requestUrl.pathname === "/api/health") {
@@ -75,6 +176,16 @@ async function handleApi(
       discord: client.isReady(),
       uptime: Math.floor(process.uptime()),
     });
+    return true;
+  }
+
+  if (!isAuthenticated(request)) {
+    sendJson(response, 401, { error: "Sesiunea nu este autentificata." });
+    return true;
+  }
+
+  if (request.method !== "GET") {
+    sendJson(response, 405, { error: "Metoda nu este permisa." });
     return true;
   }
 
@@ -134,15 +245,15 @@ async function handleRequest(
   request: IncomingMessage,
   response: ServerResponse,
 ): Promise<void> {
-  if (request.method !== "GET") {
-    sendJson(response, 405, { error: "Metoda nu este permisa." });
-    return;
-  }
-
   const requestUrl = new URL(request.url ?? "/", "http://localhost");
 
   try {
-    if (await handleApi(client, requestUrl, response)) {
+    if (await handleApi(client, request, requestUrl, response)) {
+      return;
+    }
+
+    if (request.method !== "GET") {
+      sendJson(response, 405, { error: "Metoda nu este permisa." });
       return;
     }
 
