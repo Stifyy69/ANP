@@ -368,6 +368,17 @@ body.authenticated .login-screen {
   color: #ee959d;
 }
 
+button.dossier-link {
+  padding: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+}
+
+.muted-dash {
+  color: #586779;
+}
+
 @media (max-width: 620px) {
   .login-shell {
     width: min(92vw, 430px);
