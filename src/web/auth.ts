@@ -128,7 +128,7 @@ function getAttemptState(key: string): AttemptState {
 }
 
 function secureCookieSuffix(): string {
-  return process.env.RAILWAY_ENVIRONMENT || process.env.NODE_ENV === "production"
+  return process.env.RAILWAY_PROJECT_ID || process.env.NODE_ENV === "production"
     ? "; Secure"
     : "";
 }
