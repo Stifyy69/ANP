@@ -131,7 +131,9 @@ async function handleAuthApi(
   response: ServerResponse,
 ): Promise<boolean> {
   if (requestUrl.pathname === "/api/auth/status") {
-    sendJson(response, 200, { authenticated: isAuthenticated(request) });
+    // Un refresh sau o redeschidere a paginii trebuie sa ceara din nou codul.
+    clearSessionCookie(response);
+    sendJson(response, 200, { authenticated: false });
     return true;
   }
 
