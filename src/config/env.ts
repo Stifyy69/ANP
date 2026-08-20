@@ -33,6 +33,8 @@ export const env = {
   carceraChannelId: getRequiredEnv("CARCERA_CHANNEL_ID"),
   reportsChannelId: getRequiredEnv("RAPOARTE_CHANNEL_ID"),
   logsChannelId: getRequiredEnv("LOGS_CHANNEL_ID"),
+  webAccessCode: getRequiredEnv("WEB_ACCESS_CODE"),
+  webSessionSecret: getRequiredEnv("WEB_SESSION_SECRET"),
 
   // Ordinea rolurilor conteaza. Primul grad gasit este folosit de bot.
   gradeRoleIds: getRoleIds("GRADE_ROLE_IDS"),
