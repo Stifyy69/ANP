@@ -44,6 +44,16 @@ function emptyStats(userId: string): AgentStats {
   };
 }
 
+function createMemberMap(members: Iterable<GuildMember>): Map<string, GuildMember> {
+  const result = new Map<string, GuildMember>();
+
+  for (const member of members) {
+    result.set(member.id, member);
+  }
+
+  return result;
+}
+
 async function getGuild(client: Client<true>): Promise<Guild> {
   const cached = client.guilds.cache.get(env.guildId);
 
@@ -147,7 +157,7 @@ export async function getDashboardData(client: Client<true>) {
     getCurrentWeekDailyActivity(),
     getStoredReports({ limit: 8 }),
   ]);
-  const members = new Map(membersCollection.map((member) => [member.id, member]));
+  const members = createMemberMap(membersCollection.values());
   const humans = [...members.values()].filter((member) => !member.user.bot);
   const activeAgentIds = new Set(stats.filter((agent) => agent.total > 0).map((agent) => agent.userId));
   const activeAgents = humans.filter((member) => activeAgentIds.has(member.id)).length;
@@ -182,14 +192,17 @@ export async function getMembersData(client: Client<true>, period: StatsPeriod) 
     guild.members.fetch(),
     getAgentStatsForPeriod(period),
   ]);
-  const statsMap = new Map(stats.map((agent) => [agent.userId, agent]));
+  const statsMap = new Map<string, AgentStats>(
+    stats.map((agent) => [agent.userId, agent] as const),
+  );
   const members = [...membersCollection.values()]
     .filter((member) => !member.user.bot)
     .filter((member) => getGradeRole(member) !== null || (statsMap.get(member.id)?.total ?? 0) > 0)
     .map((member) => {
       const agentStats = statsMap.get(member.id) ?? emptyStats(member.id);
+      const memberMap = new Map<string, GuildMember>([[member.id, member]]);
 
-      return serializeAgent(agentStats, new Map([[member.id, member]]));
+      return serializeAgent(agentStats, memberMap);
     })
     .sort((a, b) =>
       b.stats.total - a.stats.total
@@ -213,13 +226,16 @@ export async function getReportsData(client: Client<true>, period: StatsPeriod) 
     getAgentStatsForPeriod(period),
     getReportTotalsForPeriod(period),
   ]);
-  const statsMap = new Map(stats.map((agent) => [agent.userId, agent]));
+  const statsMap = new Map<string, AgentStats>(
+    stats.map((agent) => [agent.userId, agent] as const),
+  );
   const members = [...membersCollection.values()]
     .filter((member) => !member.user.bot)
     .map((member) => {
       const agentStats = statsMap.get(member.id) ?? emptyStats(member.id);
+      const memberMap = new Map<string, GuildMember>([[member.id, member]]);
 
-      return serializeAgent(agentStats, new Map([[member.id, member]]));
+      return serializeAgent(agentStats, memberMap);
     })
     .sort((a, b) =>
       b.stats.total - a.stats.total
@@ -246,7 +262,7 @@ export async function getDossiersData(
     guild.members.fetch(),
     getStoredReports({ reportType, limit: 250 }),
   ]);
-  const members = new Map(membersCollection.map((member) => [member.id, member]));
+  const members = createMemberMap(membersCollection.values());
 
   return {
     dossiers: reports.map((report) => serializeReport(
@@ -272,7 +288,7 @@ export async function getDossierDetails(
 
   const guild = await getGuild(client);
   const membersCollection = await guild.members.fetch();
-  const members = new Map(membersCollection.map((member) => [member.id, member]));
+  const members = createMemberMap(membersCollection.values());
   const channel = await client.channels.fetch(reportChannelIds[report.reportType]).catch(() => null);
   const message = channel && channel.type === ChannelType.GuildText
     ? await channel.messages.fetch(report.messageId).catch(() => null)
