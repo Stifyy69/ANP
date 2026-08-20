@@ -1,4 +1,5 @@
-const LOGIN_SEQUENCE_MS = 5000;
+const UNLOCK_ANIMATION_MS = 4720;
+const FINAL_GRANT_MS = 280;
 
 function sleep(ms) {
   return new Promise((resolve) => window.setTimeout(resolve, ms));
@@ -83,7 +84,7 @@ async function runHackSequence() {
   let animationFrame = 0;
 
   const animateProgress = (now) => {
-    const progress = Math.min(1, (now - start) / LOGIN_SEQUENCE_MS);
+    const progress = Math.min(1, (now - start) / UNLOCK_ANIMATION_MS);
     const percent = Math.floor(progress * 100);
 
     if (progressBar) {
@@ -109,7 +110,7 @@ async function runHackSequence() {
     [2850, "[OK] Discord gateway sincronizat", "ok"],
     [3550, "[OK] arhiva operationala deblocata", "ok"],
     [4200, "[OK] nivel acces: MANAGEMENT", "accent"],
-    [4680, "> autorizare finala...", "normal"],
+    [4580, "> autorizare finala...", "normal"],
   ];
 
   let elapsed = 0;
@@ -121,7 +122,7 @@ async function runHackSequence() {
     addTerminalLine(text, kind);
   }
 
-  await sleep(Math.max(0, LOGIN_SEQUENCE_MS - elapsed));
+  await sleep(Math.max(0, UNLOCK_ANIMATION_MS - elapsed));
   cancelAnimationFrame(animationFrame);
   window.clearInterval(clockTimer);
 
@@ -135,7 +136,7 @@ async function runHackSequence() {
 
   addTerminalLine("ACCESS GRANTED // BINE AI VENIT", "granted");
   document.body.classList.add("auth-granted");
-  await sleep(280);
+  await sleep(FINAL_GRANT_MS);
   window.location.reload();
 }
 
