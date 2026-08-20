@@ -7,7 +7,72 @@
   <title>ANP Management</title>
   <link rel="stylesheet" href="/styles.css" />
 </head>
-<body>
+<body class="auth-pending">
+  <section class="login-screen" id="login-screen">
+    <div class="login-noise"></div>
+    <div class="login-glow login-glow-one"></div>
+    <div class="login-glow login-glow-two"></div>
+
+    <div class="login-shell">
+      <div class="login-security-line">
+        <span class="login-live-dot"></span>
+        <span>SECURE MANAGEMENT GATEWAY</span>
+        <span class="login-line"></span>
+        <span>ANP // RESTRICTED</span>
+      </div>
+
+      <div class="login-card">
+        <div class="login-emblem-wrap">
+          <div class="login-emblem">
+            <span>ANP</span>
+          </div>
+          <div class="login-ring ring-one"></div>
+          <div class="login-ring ring-two"></div>
+        </div>
+
+        <div class="login-copy">
+          <span class="login-kicker">ACCES RESTRICTIONAT</span>
+          <h1>ANP Management <span>Login</span></h1>
+          <p>Introdu codul privat de acces pentru a deschide centrul de management.</p>
+        </div>
+
+        <form class="login-form" id="login-form" autocomplete="off">
+          <label for="login-code">Cod de acces</label>
+          <div class="secret-input-wrap">
+            <span class="secret-prefix">//</span>
+            <input
+              id="login-code"
+              name="code"
+              type="password"
+              inputmode="text"
+              autocomplete="current-password"
+              maxlength="128"
+              placeholder="••••••••••••"
+              required
+            />
+            <button type="button" class="secret-toggle" id="secret-toggle" aria-label="Arata codul">VEZI</button>
+          </div>
+          <button type="submit" class="login-button" id="login-button">
+            <span>DEBLOCHEAZA MANAGEMENT</span>
+            <span class="login-arrow">→</span>
+          </button>
+          <div class="login-message" id="login-message" role="status"></div>
+        </form>
+
+        <div class="login-meta">
+          <span><i></i>Sesiune privata</span>
+          <span><i></i>Cookie HttpOnly</span>
+          <span><i></i>Protectie incercari</span>
+        </div>
+      </div>
+
+      <div class="login-footer">
+        <span>ADMINISTRATIA NATIONALA A PENITENCIARELOR</span>
+        <span>MANAGEMENT SYSTEM // INTERNAL</span>
+      </div>
+    </div>
+  </section>
+
   <div class="app-shell">
     <aside class="sidebar" id="sidebar">
       <div class="brand">
@@ -67,9 +132,10 @@
           <div class="server-avatar" id="server-avatar">A</div>
           <div class="server-copy">
             <strong id="server-name">ANP</strong>
-            <span>Management read-only</span>
+            <span>Management securizat</span>
           </div>
           <span class="online-pill">ONLINE</span>
+          <button class="logout-button" id="logout-button" type="button">Iesire</button>
         </div>
       </header>
 
@@ -399,7 +465,7 @@
               <div><span>Membri umani</span><strong id="system-members">-</strong></div>
               <div><span>Canale Discord</span><strong id="system-channels">-</strong></div>
               <div><span>Versiune web</span><strong id="system-version">-</strong></div>
-              <div><span>Mod acces</span><strong>Read-only, fara login</strong></div>
+              <div><span>Mod acces</span><strong>Cod secret + sesiune privata</strong></div>
             </div>
           </article>
         </section>
