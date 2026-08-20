@@ -80,6 +80,19 @@ async function sendStyles(response: ServerResponse): Promise<void> {
   response.end(`${baseStyles}\n${loginStyles}`);
 }
 
+async function sendAppScripts(response: ServerResponse): Promise<void> {
+  const [hackerLogin, app] = await Promise.all([
+    readFile(path.join(publicDirectory, "hacker-login.js"), "utf8"),
+    readFile(path.join(publicDirectory, "app.js"), "utf8"),
+  ]);
+
+  setCommonHeaders(response);
+  response.statusCode = 200;
+  response.setHeader("Content-Type", "text/javascript; charset=utf-8");
+  response.setHeader("Cache-Control", "public, max-age=300");
+  response.end(`${hackerLogin}\n${app}`);
+}
+
 async function readJsonBody(request: IncomingMessage): Promise<Record<string, unknown>> {
   const chunks: Buffer[] = [];
   let size = 0;
@@ -276,7 +289,7 @@ async function handleRequest(
     }
 
     if (requestUrl.pathname === "/app.js") {
-      await sendFile(response, "app.js");
+      await sendAppScripts(response);
       return;
     }
 
