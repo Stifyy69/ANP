@@ -25,6 +25,29 @@ export type CurrentWeekInfo = {
   endDate: string;
 };
 
+export type ReportTotals = {
+  transporturi: number;
+  vizite: number;
+  carcera: number;
+  total: number;
+};
+
+export type DailyReportActivity = ReportTotals & {
+  date: string;
+  label: string;
+};
+
+export type StoredReport = {
+  messageId: string;
+  reportType: ReportType;
+  dossierNumber: number;
+  primaryUserId: string;
+  secondaryUserId: string | null;
+  approved: boolean;
+  createdAt: string;
+  updatedAt: string;
+};
+
 const REPORT_TIMEZONE = "Europe/Bucharest";
 
 const pool = new Pool({
@@ -34,6 +57,19 @@ const pool = new Pool({
 
 function toNumber(value: unknown): number {
   return Number(value ?? 0);
+}
+
+function toStoredReport(row: Record<string, unknown>): StoredReport {
+  return {
+    messageId: String(row.message_id),
+    reportType: String(row.report_type) as ReportType,
+    dossierNumber: toNumber(row.dossier_number),
+    primaryUserId: String(row.primary_user_id),
+    secondaryUserId: row.secondary_user_id ? String(row.secondary_user_id) : null,
+    approved: Boolean(row.approved),
+    createdAt: new Date(String(row.created_at)).toISOString(),
+    updatedAt: new Date(String(row.updated_at)).toISOString(),
+  };
 }
 
 function getPeriodFilter(period: StatsPeriod): { sql: string; params: Array<number> } {
@@ -259,6 +295,138 @@ export async function getPersonalStatsForPeriod(userId: string, period: StatsPer
     total: toNumber(row.total),
     rank: toNumber(row.rank),
   };
+}
+
+export async function getReportTotalsForPeriod(period: StatsPeriod): Promise<ReportTotals> {
+  const filter = getPeriodFilter(period);
+  const result = await pool.query(`
+    SELECT
+      COUNT(*) FILTER (WHERE report_type = 'transport' AND approved = TRUE) AS transporturi,
+      COUNT(*) FILTER (WHERE report_type = 'vizita' AND approved = TRUE) AS vizite,
+      COUNT(*) FILTER (WHERE report_type = 'carcera' AND approved = TRUE) AS carcera,
+      COUNT(*) FILTER (WHERE approved = TRUE) AS total
+    FROM anp_reports
+    WHERE TRUE
+    ${filter.sql}
+  `, filter.params);
+  const row = result.rows[0];
+
+  return {
+    transporturi: toNumber(row?.transporturi),
+    vizite: toNumber(row?.vizite),
+    carcera: toNumber(row?.carcera),
+    total: toNumber(row?.total),
+  };
+}
+
+export async function getCurrentWeekDailyActivity(): Promise<DailyReportActivity[]> {
+  const result = await pool.query(`
+    WITH zile AS (
+      SELECT generate_series(
+        date_trunc('week', NOW() AT TIME ZONE '${REPORT_TIMEZONE}'),
+        date_trunc('week', NOW() AT TIME ZONE '${REPORT_TIMEZONE}') + INTERVAL '6 days',
+        INTERVAL '1 day'
+      ) AS zi
+    ), activitate AS (
+      SELECT
+        date_trunc('day', created_at AT TIME ZONE '${REPORT_TIMEZONE}') AS zi,
+        COUNT(*) FILTER (WHERE report_type = 'transport') AS transporturi,
+        COUNT(*) FILTER (WHERE report_type = 'vizita') AS vizite,
+        COUNT(*) FILTER (WHERE report_type = 'carcera') AS carcera,
+        COUNT(*) AS total
+      FROM anp_reports
+      WHERE approved = TRUE
+        AND (created_at AT TIME ZONE '${REPORT_TIMEZONE}') >= date_trunc('week', NOW() AT TIME ZONE '${REPORT_TIMEZONE}')
+        AND (created_at AT TIME ZONE '${REPORT_TIMEZONE}') < date_trunc('week', NOW() AT TIME ZONE '${REPORT_TIMEZONE}') + INTERVAL '7 days'
+      GROUP BY 1
+    )
+    SELECT
+      to_char(zile.zi, 'YYYY-MM-DD') AS date,
+      to_char(zile.zi, 'DD.MM') AS label,
+      COALESCE(activitate.transporturi, 0) AS transporturi,
+      COALESCE(activitate.vizite, 0) AS vizite,
+      COALESCE(activitate.carcera, 0) AS carcera,
+      COALESCE(activitate.total, 0) AS total
+    FROM zile
+    LEFT JOIN activitate ON activitate.zi = zile.zi
+    ORDER BY zile.zi ASC
+  `);
+
+  return result.rows.map((row) => ({
+    date: String(row.date),
+    label: String(row.label),
+    transporturi: toNumber(row.transporturi),
+    vizite: toNumber(row.vizite),
+    carcera: toNumber(row.carcera),
+    total: toNumber(row.total),
+  }));
+}
+
+export async function getStoredReports(options?: {
+  reportType?: ReportType;
+  limit?: number;
+}): Promise<StoredReport[]> {
+  const reportType = options?.reportType;
+  const limit = Math.min(Math.max(options?.limit ?? 100, 1), 500);
+  const params: Array<string | number> = [];
+  const conditions: string[] = [];
+
+  if (reportType) {
+    params.push(reportType);
+    conditions.push(`report_type = $${params.length}`);
+  }
+
+  params.push(limit);
+  const where = conditions.length > 0 ? `WHERE ${conditions.join(" AND ")}` : "";
+  const result = await pool.query(`
+    SELECT
+      message_id,
+      report_type,
+      dossier_number,
+      primary_user_id,
+      secondary_user_id,
+      approved,
+      created_at,
+      updated_at
+    FROM anp_reports
+    ${where}
+    ORDER BY created_at DESC
+    LIMIT $${params.length}
+  `, params);
+
+  return result.rows.map((row) => toStoredReport(row));
+}
+
+export async function getStoredReportByDossier(
+  reportType: ReportType,
+  dossierNumber: number,
+): Promise<StoredReport | null> {
+  const result = await pool.query(`
+    SELECT
+      message_id,
+      report_type,
+      dossier_number,
+      primary_user_id,
+      secondary_user_id,
+      approved,
+      created_at,
+      updated_at
+    FROM anp_reports
+    WHERE report_type = $1 AND dossier_number = $2
+    LIMIT 1
+  `, [reportType, dossierNumber]);
+  const row = result.rows[0];
+
+  return row ? toStoredReport(row) : null;
+}
+
+export async function pingDatabase(): Promise<boolean> {
+  try {
+    await pool.query("SELECT 1");
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 export async function getCurrentWeekInfo(): Promise<CurrentWeekInfo> {
