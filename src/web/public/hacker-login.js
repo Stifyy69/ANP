@@ -137,7 +137,21 @@ async function runHackSequence() {
   addTerminalLine("ACCESS GRANTED // BINE AI VENIT", "granted");
   document.body.classList.add("auth-granted");
   await sleep(FINAL_GRANT_MS);
-  window.location.reload();
+
+  const codeInput = document.getElementById("login-code");
+  const button = document.getElementById("login-button");
+
+  if (codeInput instanceof HTMLInputElement) {
+    codeInput.disabled = false;
+  }
+
+  if (button instanceof HTMLButtonElement) {
+    button.disabled = false;
+  }
+
+  document.body.classList.remove("auth-unlocking", "auth-granted");
+  setAuthState(true);
+  await navigate("dashboard");
 }
 
 async function submitHackerLogin(event) {
