@@ -1,0 +1,432 @@
+<!doctype html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#080d14" />
+  <title>ANP Management</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <div class="brand">
+        <div class="brand-mark">ANP</div>
+        <div>
+          <div class="brand-title">ANP</div>
+          <div class="brand-subtitle">MANAGEMENT</div>
+        </div>
+      </div>
+
+      <nav class="nav-list" aria-label="Navigare principala">
+        <button class="nav-item active" data-page="dashboard">
+          <span class="nav-icon">⌂</span>
+          <span>Dashboard</span>
+        </button>
+        <button class="nav-item" data-page="members">
+          <span class="nav-icon">◉</span>
+          <span>Membri</span>
+        </button>
+        <button class="nav-item" data-page="reports">
+          <span class="nav-icon">▤</span>
+          <span>Rapoarte</span>
+        </button>
+        <button class="nav-item" data-page="dossiers">
+          <span class="nav-icon">▣</span>
+          <span>Dosare</span>
+        </button>
+        <button class="nav-item" data-page="system">
+          <span class="nav-icon">⚙</span>
+          <span>Sistem</span>
+        </button>
+      </nav>
+
+      <div class="sidebar-bottom">
+        <div class="week-card">
+          <span class="eyebrow">Saptamana curenta</span>
+          <strong id="sidebar-week">Se incarca...</strong>
+        </div>
+        <div class="connection-card">
+          <span class="status-dot"></span>
+          <div>
+            <strong id="sidebar-guild">Discord ANP</strong>
+            <span>Bot conectat</span>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <div class="main-column">
+      <header class="topbar">
+        <button class="mobile-menu" id="mobile-menu" aria-label="Deschide meniul">☰</button>
+        <div class="topbar-title">
+          <span class="topbar-icon">▣</span>
+          <strong id="topbar-page">Dashboard</strong>
+        </div>
+        <div class="topbar-server">
+          <div class="server-avatar" id="server-avatar">A</div>
+          <div class="server-copy">
+            <strong id="server-name">ANP</strong>
+            <span>Management read-only</span>
+          </div>
+          <span class="online-pill">ONLINE</span>
+        </div>
+      </header>
+
+      <main class="content">
+        <section class="page active" id="page-dashboard">
+          <div class="page-heading">
+            <div>
+              <span class="eyebrow">CENTRU OPERATIV</span>
+              <h1>Dashboard</h1>
+              <p>Privire de ansamblu asupra activitatii ANP din saptamana curenta.</p>
+            </div>
+            <div class="period-chip" id="dashboard-period">Se incarca...</div>
+          </div>
+
+          <div class="stat-grid">
+            <article class="stat-card blue">
+              <div class="stat-icon">T</div>
+              <div class="stat-content">
+                <span>TRANSPORTURI</span>
+                <strong id="stat-transport">0</strong>
+                <small>dosare aprobate in perioada</small>
+              </div>
+            </article>
+            <article class="stat-card green">
+              <div class="stat-icon">V</div>
+              <div class="stat-content">
+                <span>VIZITE</span>
+                <strong id="stat-vizite">0</strong>
+                <small>vizite inregistrate</small>
+              </div>
+            </article>
+            <article class="stat-card purple">
+              <div class="stat-icon">C</div>
+              <div class="stat-content">
+                <span>CARCERA</span>
+                <strong id="stat-carcera">0</strong>
+                <small>doar dosare aprobate</small>
+              </div>
+            </article>
+            <article class="stat-card amber">
+              <div class="stat-icon">#</div>
+              <div class="stat-content">
+                <span>TOTAL DOSARE</span>
+                <strong id="stat-total">0</strong>
+                <small>activitate valida</small>
+              </div>
+            </article>
+            <article class="stat-card cyan">
+              <div class="stat-icon">A</div>
+              <div class="stat-content">
+                <span>AGENTI ACTIVI</span>
+                <strong id="stat-active">0</strong>
+                <small id="stat-agents-sub">din 0 agenti configurati</small>
+              </div>
+            </article>
+          </div>
+
+          <div class="dashboard-grid">
+            <article class="panel top-panel">
+              <div class="panel-header">
+                <div>
+                  <span class="eyebrow">CLASAMENT</span>
+                  <h2>Top agenti</h2>
+                </div>
+                <button class="text-button" data-go="reports">Vezi tot</button>
+              </div>
+              <div class="table-wrap compact-table">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>#</th>
+                      <th>Membru</th>
+                      <th>T</th>
+                      <th>V</th>
+                      <th>C</th>
+                      <th>Total</th>
+                    </tr>
+                  </thead>
+                  <tbody id="dashboard-top-body">
+                    <tr><td colspan="6" class="empty-cell">Se incarca...</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </article>
+
+            <article class="panel chart-panel">
+              <div class="panel-header">
+                <div>
+                  <span class="eyebrow">RITM SAPTAMANAL</span>
+                  <h2>Activitate pe zile</h2>
+                </div>
+                <div class="chart-legend">
+                  <span><i class="legend-dot blue-dot"></i>Transporturi</span>
+                  <span><i class="legend-dot green-dot"></i>Vizite</span>
+                  <span><i class="legend-dot purple-dot"></i>Carcera</span>
+                </div>
+              </div>
+              <div class="chart-area" id="activity-chart">
+                <div class="chart-loading">Se incarca graficul...</div>
+              </div>
+            </article>
+          </div>
+
+          <article class="panel recent-panel">
+            <div class="panel-header">
+              <div>
+                <span class="eyebrow">REGISTRU</span>
+                <h2>Dosare recente</h2>
+              </div>
+              <button class="text-button" data-go="dossiers">Vezi toate</button>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>ID Dosar</th>
+                    <th>Tip</th>
+                    <th>Agent principal</th>
+                    <th>Agent secundar</th>
+                    <th>Data</th>
+                    <th>Status</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody id="recent-dossiers-body">
+                  <tr><td colspan="7" class="empty-cell">Se incarca...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </article>
+        </section>
+
+        <section class="page" id="page-members">
+          <div class="page-heading">
+            <div>
+              <span class="eyebrow">PERSONAL</span>
+              <h1>Membri ANP</h1>
+              <p>Activitatea agentilor configurati in Discord.</p>
+            </div>
+            <div class="toolbar">
+              <input class="search-input" id="members-search" type="search" placeholder="Cauta membru sau grad..." />
+            </div>
+          </div>
+
+          <article class="panel">
+            <div class="panel-header">
+              <div>
+                <span class="eyebrow">SAPTAMANA CURENTA</span>
+                <h2>Personal si activitate</h2>
+              </div>
+              <span class="count-badge" id="members-count">0 membri</span>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Membru</th>
+                    <th>Grad</th>
+                    <th>Transporturi</th>
+                    <th>Vizite</th>
+                    <th>Carcera</th>
+                    <th>Total</th>
+                  </tr>
+                </thead>
+                <tbody id="members-table-body">
+                  <tr><td colspan="6" class="empty-cell">Se incarca...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </article>
+        </section>
+
+        <section class="page" id="page-reports">
+          <div class="page-heading reports-heading">
+            <div>
+              <span class="eyebrow">ANALIZA ACTIVITATE</span>
+              <h1>Rapoarte</h1>
+              <p>Vezi activitatea tuturor membrilor, inclusiv cei cu 0 activitati.</p>
+            </div>
+          </div>
+
+          <article class="panel period-panel">
+            <div class="period-tabs" id="period-tabs">
+              <button class="period-tab active" data-period="current_week">Saptamana curenta</button>
+              <button class="period-tab" data-period="week">Saptamana</button>
+              <button class="period-tab" data-period="month">Luna</button>
+              <button class="period-tab" data-period="alltime">All-time</button>
+            </div>
+            <div class="period-fields" id="period-fields">
+              <label>
+                <span>An</span>
+                <input type="number" id="period-year" min="2020" max="2100" />
+              </label>
+              <label id="week-field">
+                <span>Saptamana</span>
+                <input type="number" id="period-week" min="1" max="53" value="1" />
+              </label>
+              <label id="month-field" class="hidden">
+                <span>Luna</span>
+                <input type="number" id="period-month" min="1" max="12" value="1" />
+              </label>
+              <button class="primary-button" id="apply-period">Aplica</button>
+            </div>
+          </article>
+
+          <div class="report-stat-grid">
+            <div class="mini-stat"><span>Transporturi</span><strong id="report-total-t">0</strong></div>
+            <div class="mini-stat"><span>Vizite</span><strong id="report-total-v">0</strong></div>
+            <div class="mini-stat"><span>Carcera</span><strong id="report-total-c">0</strong></div>
+            <div class="mini-stat"><span>Total dosare</span><strong id="report-total-all">0</strong></div>
+          </div>
+
+          <article class="panel">
+            <div class="panel-header">
+              <div>
+                <span class="eyebrow" id="reports-period-label">SAPTAMANA CURENTA</span>
+                <h2>Activitate personal</h2>
+              </div>
+              <input class="search-input small" id="reports-search" type="search" placeholder="Cauta membru..." />
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Membru</th>
+                    <th>Grad</th>
+                    <th>T</th>
+                    <th>V</th>
+                    <th>C</th>
+                    <th>Total</th>
+                  </tr>
+                </thead>
+                <tbody id="reports-table-body">
+                  <tr><td colspan="7" class="empty-cell">Se incarca...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </article>
+        </section>
+
+        <section class="page" id="page-dossiers">
+          <div class="page-heading">
+            <div>
+              <span class="eyebrow">ARHIVA OPERATIVA</span>
+              <h1>Dosare</h1>
+              <p>Cauta rapid un transport, o vizita sau un dosar disciplinar.</p>
+            </div>
+            <div class="toolbar dossier-toolbar">
+              <select id="dossier-type" class="select-input">
+                <option value="">Toate tipurile</option>
+                <option value="transport">Transporturi</option>
+                <option value="vizita">Vizite</option>
+                <option value="carcera">Carcera</option>
+              </select>
+              <input class="search-input" id="dossier-search" type="search" placeholder="T-001, nume agent..." />
+            </div>
+          </div>
+
+          <article class="panel">
+            <div class="panel-header">
+              <div>
+                <span class="eyebrow">ULTIMELE 250</span>
+                <h2>Registru dosare</h2>
+              </div>
+              <span class="count-badge" id="dossiers-count">0 dosare</span>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>ID Dosar</th>
+                    <th>Tip</th>
+                    <th>Agent principal</th>
+                    <th>Agent secundar</th>
+                    <th>Data</th>
+                    <th>Status</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody id="dossiers-table-body">
+                  <tr><td colspan="7" class="empty-cell">Se incarca...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </article>
+        </section>
+
+        <section class="page" id="page-system">
+          <div class="page-heading">
+            <div>
+              <span class="eyebrow">STATUS</span>
+              <h1>Sistem</h1>
+              <p>Starea serviciilor folosite de bot si panoul web.</p>
+            </div>
+          </div>
+
+          <div class="system-grid">
+            <article class="system-card">
+              <span class="system-icon green-ring">●</span>
+              <div><span>Discord Bot</span><strong id="system-bot-status">Se verifica...</strong></div>
+            </article>
+            <article class="system-card">
+              <span class="system-icon blue-ring">DB</span>
+              <div><span>PostgreSQL</span><strong id="system-db-status">Se verifica...</strong></div>
+            </article>
+            <article class="system-card">
+              <span class="system-icon purple-ring">UP</span>
+              <div><span>Uptime</span><strong id="system-uptime">-</strong></div>
+            </article>
+            <article class="system-card">
+              <span class="system-icon amber-ring">ANP</span>
+              <div><span>Agenti configurati</span><strong id="system-agents">0</strong></div>
+            </article>
+          </div>
+
+          <article class="panel system-details">
+            <div class="panel-header">
+              <div>
+                <span class="eyebrow">INFORMATII</span>
+                <h2>Instanta curenta</h2>
+              </div>
+            </div>
+            <div class="info-grid">
+              <div><span>Server Discord</span><strong id="system-guild">-</strong></div>
+              <div><span>Bot</span><strong id="system-bot">-</strong></div>
+              <div><span>Membri umani</span><strong id="system-members">-</strong></div>
+              <div><span>Canale Discord</span><strong id="system-channels">-</strong></div>
+              <div><span>Versiune web</span><strong id="system-version">-</strong></div>
+              <div><span>Mod acces</span><strong>Read-only, fara login</strong></div>
+            </div>
+          </article>
+        </section>
+      </main>
+
+      <footer class="footer">
+        <span>ANP Management Panel</span>
+        <span>Sincronizat cu Discord si PostgreSQL</span>
+      </footer>
+    </div>
+  </div>
+
+  <div class="drawer-backdrop" id="drawer-backdrop"></div>
+  <aside class="detail-drawer" id="detail-drawer" aria-hidden="true">
+    <div class="drawer-header">
+      <div>
+        <span class="eyebrow">DETALII DOSAR</span>
+        <h2 id="drawer-title">Dosar</h2>
+      </div>
+      <button class="drawer-close" id="drawer-close" aria-label="Inchide">×</button>
+    </div>
+    <div class="drawer-content" id="drawer-content">
+      <div class="drawer-loading">Se incarca...</div>
+    </div>
+  </aside>
+
+  <div class="toast" id="toast"></div>
+  <script src="/app.js" defer></script>
+</body>
+</html>
