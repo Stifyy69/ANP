@@ -89,7 +89,7 @@ async function sendAppScripts(response: ServerResponse): Promise<void> {
   setCommonHeaders(response);
   response.statusCode = 200;
   response.setHeader("Content-Type", "text/javascript; charset=utf-8");
-  response.setHeader("Cache-Control", "public, max-age=300");
+  response.setHeader("Cache-Control", "no-store, no-cache, must-revalidate");
   response.end(`${hackerLogin}\n${app}`);
 }
 
