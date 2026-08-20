@@ -8,6 +8,16 @@ function getRequiredEnv(name: string): string {
   return value;
 }
 
+function getSecretEnv(name: string, minLength: number): string {
+  const value = getRequiredEnv(name);
+
+  if (value.length < minLength) {
+    throw new Error(`Variabila ${name} trebuie sa aiba minimum ${minLength} caractere.`);
+  }
+
+  return value;
+}
+
 function getRoleIds(name: string): string[] {
   const ids = getRequiredEnv(name)
     .split(",")
@@ -33,8 +43,8 @@ export const env = {
   carceraChannelId: getRequiredEnv("CARCERA_CHANNEL_ID"),
   reportsChannelId: getRequiredEnv("RAPOARTE_CHANNEL_ID"),
   logsChannelId: getRequiredEnv("LOGS_CHANNEL_ID"),
-  webAccessCode: getRequiredEnv("WEB_ACCESS_CODE"),
-  webSessionSecret: getRequiredEnv("WEB_SESSION_SECRET"),
+  webAccessCode: getSecretEnv("WEB_ACCESS_CODE", 6),
+  webSessionSecret: getSecretEnv("WEB_SESSION_SECRET", 32),
 
   // Ordinea rolurilor conteaza. Primul grad gasit este folosit de bot.
   gradeRoleIds: getRoleIds("GRADE_ROLE_IDS"),
