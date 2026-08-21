@@ -19,10 +19,10 @@ function createHackSequence() {
   sequence.innerHTML = `
     <div class="hack-head">
       <div>
-        <span class="hack-kicker">ANP SECURE NODE</span>
-        <strong>INITIALIZARE SESIUNE</strong>
+        <span class="hack-kicker">OG LAND // BOLINGBROKE</span>
+        <strong>ANP SECURE ACCESS PROTOCOL</strong>
       </div>
-      <span class="hack-status">ENCRYPTED</span>
+      <span class="hack-status">AUTHORIZED NODE</span>
     </div>
     <div class="hack-terminal" id="hack-terminal" aria-live="polite"></div>
     <div class="hack-progress-row">
@@ -30,7 +30,7 @@ function createHackSequence() {
       <strong id="hack-progress-value">0%</strong>
     </div>
     <div class="hack-signature">
-      <span>NODE: ANP-MGMT-01</span>
+      <span>FACILITY: BOLINGBROKE PENITENTIARY</span>
       <span id="hack-clock">00:00:00</span>
     </div>
   `;
@@ -103,14 +103,14 @@ async function runHackSequence() {
   animationFrame = requestAnimationFrame(animateProgress);
 
   const events = [
-    [0, "> validare credentiale management...", "normal"],
-    [620, "[OK] token privat acceptat", "ok"],
-    [1250, "[OK] handshake criptografic stabilit", "ok"],
-    [2050, "[OK] registru PostgreSQL conectat", "ok"],
-    [2850, "[OK] Discord gateway sincronizat", "ok"],
-    [3550, "[OK] arhiva operationala deblocata", "ok"],
-    [4200, "[OK] nivel acces: MANAGEMENT", "accent"],
-    [4580, "> autorizare finala...", "normal"],
+    [0, "> opening ANP secure website...", "normal"],
+    [620, "[OK] personnel access credential accepted", "ok"],
+    [1250, "[OK] OG LAND correctional network reached", "ok"],
+    [2050, "[OK] Bolingbroke central registry connected", "ok"],
+    [2850, "[OK] operational archives synchronized", "ok"],
+    [3550, "[OK] prison command services available", "ok"],
+    [4200, "[OK] clearance level: ANP MANAGEMENT", "accent"],
+    [4580, "> opening Bolingbroke command center...", "normal"],
   ];
 
   let elapsed = 0;
@@ -134,7 +134,7 @@ async function runHackSequence() {
     progressValue.textContent = "100%";
   }
 
-  addTerminalLine("ACCESS GRANTED // BINE AI VENIT", "granted");
+  addTerminalLine("ACCESS GRANTED // WELCOME TO BOLINGBROKE", "granted");
   document.body.classList.add("auth-granted");
   await sleep(FINAL_GRANT_MS);
 
@@ -176,7 +176,7 @@ async function submitHackerLogin(event) {
   button.disabled = true;
   codeInput.disabled = true;
   message.classList.remove("success");
-  message.textContent = "Verificare canal securizat...";
+  message.textContent = "Verificare autorizare ANP...";
 
   try {
     const response = await fetch("/api/auth/login", {
@@ -192,7 +192,7 @@ async function submitHackerLogin(event) {
     }
 
     message.classList.add("success");
-    message.textContent = "Credentiale acceptate. Pornire protocol...";
+    message.textContent = "Cod acceptat. Se deschide reteaua securizata...";
     await runHackSequence();
   } catch (error) {
     message.textContent = error instanceof Error ? error.message : "Acces refuzat.";
