@@ -4,10 +4,10 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#080d14" />
-  <title>ANP Management</title>
+  <title>ANP | Bolingbroke Command</title>
   <link rel="stylesheet" href="/styles.css" />
 </head>
-<body class="auth-pending">
+<body class="auth-pending rp-ui">
   <section class="login-screen" id="login-screen">
     <div class="login-noise"></div>
     <div class="login-glow login-glow-one"></div>
@@ -16,12 +16,13 @@
     <div class="login-shell">
       <div class="login-security-line">
         <span class="login-live-dot"></span>
-        <span>SECURE MANAGEMENT GATEWAY</span>
+        <span>OG LAND // BOLINGBROKE PENITENTIARY</span>
         <span class="login-line"></span>
-        <span>ANP // RESTRICTED</span>
+        <span>AUTHORIZED PERSONNEL ONLY</span>
       </div>
 
       <div class="login-card">
+        <div class="facility-stamp"><span>OG LAND</span><strong>BOLINGBROKE</strong><small>PENITENTIARY // ANP</small></div>
         <div class="login-emblem-wrap">
           <div class="login-emblem">
             <span>ANP</span>
@@ -31,13 +32,13 @@
         </div>
 
         <div class="login-copy">
-          <span class="login-kicker">ACCES RESTRICTIONAT</span>
-          <h1>ANP Management <span>Login</span></h1>
-          <p>Introdu codul privat de acces pentru a deschide centrul de management.</p>
+          <span class="login-kicker">OG LAND CORRECTIONAL NETWORK</span>
+          <h1>ANP Secure <span>Access</span></h1>
+          <p>Portal intern Bolingbroke. Acces rezervat personalului ANP autorizat din OG LAND.</p>
         </div>
 
         <form class="login-form" id="login-form" autocomplete="off">
-          <label for="login-code">Cod de acces</label>
+          <label for="login-code">Cod de autorizare ANP</label>
           <div class="secret-input-wrap">
             <span class="secret-prefix">//</span>
             <input
@@ -53,22 +54,22 @@
             <button type="button" class="secret-toggle" id="secret-toggle" aria-label="Arata codul">VEZI</button>
           </div>
           <button type="submit" class="login-button" id="login-button">
-            <span>DEBLOCHEAZA MANAGEMENT</span>
+            <span>OPEN ANP SECURE WEBSITE</span>
             <span class="login-arrow">→</span>
           </button>
           <div class="login-message" id="login-message" role="status"></div>
         </form>
 
         <div class="login-meta">
-          <span><i></i>Sesiune privata</span>
-          <span><i></i>Cookie HttpOnly</span>
-          <span><i></i>Protectie incercari</span>
+          <span><i></i>BOLINGBROKE PENITENTIARY</span>
+          <span><i></i>OG LAND GOVERNMENT NETWORK</span>
+          <span><i></i>MANAGEMENT CLEARANCE</span>
         </div>
       </div>
 
       <div class="login-footer">
-        <span>ADMINISTRATIA NATIONALA A PENITENCIARELOR</span>
-        <span>MANAGEMENT SYSTEM // INTERNAL</span>
+        <span>OG LAND // ADMINISTRATIA NATIONALA A PENITENCIARELOR</span>
+        <span>BOLINGBROKE // INTERNAL ACCESS</span>
       </div>
     </div>
   </section>
@@ -79,29 +80,29 @@
         <div class="brand-mark">ANP</div>
         <div>
           <div class="brand-title">ANP</div>
-          <div class="brand-subtitle">MANAGEMENT</div>
+          <div class="brand-subtitle">BOLINGBROKE // OG LAND</div>
         </div>
       </div>
 
       <nav class="nav-list" aria-label="Navigare principala">
-        <button class="nav-item active" data-page="dashboard">
-          <span class="nav-icon">⌂</span>
+        <button type="button" class="nav-item active" data-page="dashboard">
+          <span class="nav-icon">01</span>
           <span>Dashboard</span>
         </button>
-        <button class="nav-item" data-page="members">
-          <span class="nav-icon">◉</span>
+        <button type="button" class="nav-item" data-page="members">
+          <span class="nav-icon">02</span>
           <span>Membri</span>
         </button>
-        <button class="nav-item" data-page="reports">
-          <span class="nav-icon">▤</span>
+        <button type="button" class="nav-item" data-page="reports">
+          <span class="nav-icon">03</span>
           <span>Rapoarte</span>
         </button>
-        <button class="nav-item" data-page="dossiers">
-          <span class="nav-icon">▣</span>
+        <button type="button" class="nav-item" data-page="dossiers">
+          <span class="nav-icon">04</span>
           <span>Dosare</span>
         </button>
-        <button class="nav-item" data-page="system">
-          <span class="nav-icon">⚙</span>
+        <button type="button" class="nav-item" data-page="system">
+          <span class="nav-icon">05</span>
           <span>Sistem</span>
         </button>
       </nav>
@@ -115,7 +116,7 @@
           <span class="status-dot"></span>
           <div>
             <strong id="sidebar-guild">Discord ANP</strong>
-            <span>Bot conectat</span>
+            <span>Legatura operationala</span>
           </div>
         </div>
       </div>
@@ -123,7 +124,7 @@
 
     <div class="main-column">
       <header class="topbar">
-        <button class="mobile-menu" id="mobile-menu" aria-label="Deschide meniul">☰</button>
+        <button type="button" class="mobile-menu" id="mobile-menu" aria-label="Deschide meniul">☰</button>
         <div class="topbar-title">
           <span class="topbar-icon">▣</span>
           <strong id="topbar-page">Dashboard</strong>
@@ -132,9 +133,9 @@
           <div class="server-avatar" id="server-avatar">A</div>
           <div class="server-copy">
             <strong id="server-name">ANP</strong>
-            <span>Management securizat</span>
+            <span>Bolingbroke Penitentiary</span>
           </div>
-          <span class="online-pill">ONLINE</span>
+          <span class="online-pill">OPERATIV</span>
           <button class="logout-button" id="logout-button" type="button">Iesire</button>
         </div>
       </header>
@@ -143,9 +144,9 @@
         <section class="page active" id="page-dashboard">
           <div class="page-heading">
             <div>
-              <span class="eyebrow">CENTRU OPERATIV</span>
+              <span class="eyebrow">BOLINGBROKE // COMMAND CENTER</span>
               <h1>Dashboard</h1>
-              <p>Privire de ansamblu asupra activitatii ANP din saptamana curenta.</p>
+              <p>Situatia operationala ANP pentru orasul OG LAND.</p>
             </div>
             <div class="period-chip" id="dashboard-period">Se incarca...</div>
           </div>
@@ -197,10 +198,10 @@
             <article class="panel top-panel">
               <div class="panel-header">
                 <div>
-                  <span class="eyebrow">CLASAMENT</span>
+                  <span class="eyebrow">PERSONAL // PERFORMANCE</span>
                   <h2>Top agenti</h2>
                 </div>
-                <button class="text-button" data-go="reports">Vezi tot</button>
+                <button type="button" class="text-button" data-go="reports">Vezi tot</button>
               </div>
               <div class="table-wrap compact-table">
                 <table>
@@ -224,7 +225,7 @@
             <article class="panel chart-panel">
               <div class="panel-header">
                 <div>
-                  <span class="eyebrow">RITM SAPTAMANAL</span>
+                  <span class="eyebrow">OPERATIONS // WEEKLY FLOW</span>
                   <h2>Activitate pe zile</h2>
                 </div>
                 <div class="chart-legend">
@@ -242,10 +243,10 @@
           <article class="panel recent-panel">
             <div class="panel-header">
               <div>
-                <span class="eyebrow">REGISTRU</span>
+                <span class="eyebrow">BOLINGBROKE CENTRAL REGISTRY</span>
                 <h2>Dosare recente</h2>
               </div>
-              <button class="text-button" data-go="dossiers">Vezi toate</button>
+              <button type="button" class="text-button" data-go="dossiers">Vezi toate</button>
             </div>
             <div class="table-wrap">
               <table>
@@ -271,9 +272,9 @@
         <section class="page" id="page-members">
           <div class="page-heading">
             <div>
-              <span class="eyebrow">PERSONAL</span>
+              <span class="eyebrow">BOLINGBROKE PERSONNEL</span>
               <h1>Membri ANP</h1>
-              <p>Activitatea agentilor configurati in Discord.</p>
+              <p>Evidenta personalului ANP si activitatea operationala.</p>
             </div>
             <div class="toolbar">
               <input class="search-input" id="members-search" type="search" placeholder="Cauta membru sau grad..." />
@@ -283,7 +284,7 @@
           <article class="panel">
             <div class="panel-header">
               <div>
-                <span class="eyebrow">SAPTAMANA CURENTA</span>
+                <span class="eyebrow">CURRENT DUTY PERIOD</span>
                 <h2>Personal si activitate</h2>
               </div>
               <span class="count-badge" id="members-count">0 membri</span>
@@ -311,18 +312,18 @@
         <section class="page" id="page-reports">
           <div class="page-heading reports-heading">
             <div>
-              <span class="eyebrow">ANALIZA ACTIVITATE</span>
+              <span class="eyebrow">OPERATIONAL REVIEW</span>
               <h1>Rapoarte</h1>
-              <p>Vezi activitatea tuturor membrilor, inclusiv cei cu 0 activitati.</p>
+              <p>Analiza activitatii personalului ANP din Bolingbroke.</p>
             </div>
           </div>
 
           <article class="panel period-panel">
             <div class="period-tabs" id="period-tabs">
-              <button class="period-tab active" data-period="current_week">Saptamana curenta</button>
-              <button class="period-tab" data-period="week">Saptamana</button>
-              <button class="period-tab" data-period="month">Luna</button>
-              <button class="period-tab" data-period="alltime">All-time</button>
+              <button type="button" class="period-tab active" data-period="current_week">Saptamana curenta</button>
+              <button type="button" class="period-tab" data-period="week">Saptamana</button>
+              <button type="button" class="period-tab" data-period="month">Luna</button>
+              <button type="button" class="period-tab" data-period="alltime">All-time</button>
             </div>
             <div class="period-fields" id="period-fields">
               <label>
@@ -337,7 +338,7 @@
                 <span>Luna</span>
                 <input type="number" id="period-month" min="1" max="12" value="1" />
               </label>
-              <button class="primary-button" id="apply-period">Aplica</button>
+              <button type="button" class="primary-button" id="apply-period">Aplica</button>
             </div>
           </article>
 
@@ -380,9 +381,9 @@
         <section class="page" id="page-dossiers">
           <div class="page-heading">
             <div>
-              <span class="eyebrow">ARHIVA OPERATIVA</span>
+              <span class="eyebrow">CENTRAL ARCHIVE</span>
               <h1>Dosare</h1>
-              <p>Cauta rapid un transport, o vizita sau un dosar disciplinar.</p>
+              <p>Registrul operational pentru transporturi, vizite si masuri disciplinare.</p>
             </div>
             <div class="toolbar dossier-toolbar">
               <select id="dossier-type" class="select-input">
@@ -398,7 +399,7 @@
           <article class="panel">
             <div class="panel-header">
               <div>
-                <span class="eyebrow">ULTIMELE 250</span>
+                <span class="eyebrow">BOLINGBROKE RECORDS</span>
                 <h2>Registru dosare</h2>
               </div>
               <span class="count-badge" id="dossiers-count">0 dosare</span>
@@ -427,28 +428,28 @@
         <section class="page" id="page-system">
           <div class="page-heading">
             <div>
-              <span class="eyebrow">STATUS</span>
+              <span class="eyebrow">FACILITY CONTROL</span>
               <h1>Sistem</h1>
-              <p>Starea serviciilor folosite de bot si panoul web.</p>
+              <p>Starea centrului operational si a registrelor interne Bolingbroke.</p>
             </div>
           </div>
 
           <div class="system-grid">
             <article class="system-card">
               <span class="system-icon green-ring">●</span>
-              <div><span>Discord Bot</span><strong id="system-bot-status">Se verifica...</strong></div>
+              <div><span>Retea ANP</span><strong id="system-bot-status">Se verifica...</strong></div>
             </article>
             <article class="system-card">
               <span class="system-icon blue-ring">DB</span>
-              <div><span>PostgreSQL</span><strong id="system-db-status">Se verifica...</strong></div>
+              <div><span>Arhiva centrala</span><strong id="system-db-status">Se verifica...</strong></div>
             </article>
             <article class="system-card">
               <span class="system-icon purple-ring">UP</span>
-              <div><span>Uptime</span><strong id="system-uptime">-</strong></div>
+              <div><span>Timp operare</span><strong id="system-uptime">-</strong></div>
             </article>
             <article class="system-card">
               <span class="system-icon amber-ring">ANP</span>
-              <div><span>Agenti configurati</span><strong id="system-agents">0</strong></div>
+              <div><span>Agenti inregistrati</span><strong id="system-agents">0</strong></div>
             </article>
           </div>
 
@@ -460,20 +461,20 @@
               </div>
             </div>
             <div class="info-grid">
-              <div><span>Server Discord</span><strong id="system-guild">-</strong></div>
-              <div><span>Bot</span><strong id="system-bot">-</strong></div>
-              <div><span>Membri umani</span><strong id="system-members">-</strong></div>
-              <div><span>Canale Discord</span><strong id="system-channels">-</strong></div>
-              <div><span>Versiune web</span><strong id="system-version">-</strong></div>
-              <div><span>Mod acces</span><strong>Cod secret + sesiune privata</strong></div>
+              <div><span>Centru operational</span><strong id="system-guild">-</strong></div>
+              <div><span>Unitate ANP</span><strong id="system-bot">-</strong></div>
+              <div><span>Personal prezent</span><strong id="system-members">-</strong></div>
+              <div><span>Canale operative</span><strong id="system-channels">-</strong></div>
+              <div><span>Versiune terminal</span><strong id="system-version">-</strong></div>
+              <div><span>Nivel acces</span><strong>ANP MANAGEMENT CLEARANCE</strong></div>
             </div>
           </article>
         </section>
       </main>
 
       <footer class="footer">
-        <span>ANP Management Panel</span>
-        <span>Sincronizat cu Discord si PostgreSQL</span>
+        <span>OG LAND // BOLINGBROKE PENITENTIARY</span>
+        <span>ANP INTERNAL MANAGEMENT NETWORK</span>
       </footer>
     </div>
   </div>
@@ -482,10 +483,10 @@
   <aside class="detail-drawer" id="detail-drawer" aria-hidden="true">
     <div class="drawer-header">
       <div>
-        <span class="eyebrow">DETALII DOSAR</span>
+        <span class="eyebrow">BOLINGBROKE CENTRAL ARCHIVE</span>
         <h2 id="drawer-title">Dosar</h2>
       </div>
-      <button class="drawer-close" id="drawer-close" aria-label="Inchide">×</button>
+      <button type="button" class="drawer-close" id="drawer-close" aria-label="Inchide">×</button>
     </div>
     <div class="drawer-content" id="drawer-content">
       <div class="drawer-loading">Se incarca...</div>
@@ -493,6 +494,6 @@
   </aside>
 
   <div class="toast" id="toast"></div>
-  <script src="/app.js?v=login-refresh-fix-1" defer></script>
+  <script src="/app.js?v=rp-pages-fix-1" defer></script>
 </body>
 </html>
