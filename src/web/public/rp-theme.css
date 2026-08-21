@@ -1,0 +1,1042 @@
+/* OG LAND / Bolingbroke institutional roleplay theme */
+:root {
+  --rp-bg: #090b0d;
+  --rp-bg-soft: #0e1114;
+  --rp-panel: rgba(18, 22, 25, 0.92);
+  --rp-panel-strong: rgba(12, 15, 18, 0.97);
+  --rp-line: rgba(169, 181, 185, 0.13);
+  --rp-line-strong: rgba(188, 199, 202, 0.22);
+  --rp-text: #edf0ec;
+  --rp-muted: #899296;
+  --rp-steel: #9aa9ae;
+  --rp-accent: #c39a59;
+  --rp-accent-soft: rgba(195, 154, 89, 0.11);
+  --rp-green: #72aa86;
+  --rp-red: #a86b70;
+}
+
+body.rp-ui {
+  color: var(--rp-text);
+  background:
+    linear-gradient(90deg, rgba(255, 255, 255, 0.012) 1px, transparent 1px) 0 0 / 88px 100%,
+    radial-gradient(circle at 82% -10%, rgba(146, 124, 86, 0.08), transparent 34%),
+    linear-gradient(150deg, #0b0e10 0%, #080a0c 58%, #0d1012 100%);
+}
+
+body.rp-ui.authenticated::before {
+  background-image:
+    repeating-linear-gradient(90deg, transparent 0 82px, rgba(173, 181, 183, 0.022) 83px 84px),
+    linear-gradient(rgba(173, 181, 183, 0.016) 1px, transparent 1px);
+  background-size: auto, 100% 46px;
+  mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.72), transparent 92%);
+}
+
+/* Login */
+.rp-ui .login-screen {
+  padding: 30px;
+  background:
+    linear-gradient(90deg, transparent 0 7%, rgba(178, 187, 190, 0.025) 7.1% 7.3%, transparent 7.4% 92%, rgba(178, 187, 190, 0.025) 92.1% 92.3%, transparent 92.4%),
+    radial-gradient(circle at 70% 20%, rgba(191, 151, 88, 0.09), transparent 31%),
+    radial-gradient(circle at 12% 84%, rgba(77, 89, 94, 0.14), transparent 30%),
+    linear-gradient(145deg, #07090a 0%, #0b0e10 47%, #07090a 100%);
+}
+
+.rp-ui .login-screen::before {
+  inset: 0;
+  opacity: 0.38;
+  background:
+    repeating-linear-gradient(90deg, transparent 0 68px, rgba(193, 200, 202, 0.025) 69px 70px),
+    repeating-linear-gradient(0deg, transparent 0 68px, rgba(193, 200, 202, 0.016) 69px 70px);
+  transform: none;
+}
+
+.rp-ui .login-screen::after {
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.018), transparent 12%, transparent 88%, rgba(0, 0, 0, 0.42)),
+    repeating-linear-gradient(90deg, transparent 0 32px, rgba(0, 0, 0, 0.15) 32px 34px, transparent 34px 66px);
+  animation: none;
+  opacity: 0.52;
+}
+
+.rp-ui .login-noise {
+  opacity: 0.12;
+  background-size: 100% 5px;
+}
+
+.rp-ui .login-glow {
+  border-color: rgba(195, 154, 89, 0.08);
+  box-shadow: 0 0 180px rgba(195, 154, 89, 0.035);
+}
+
+.rp-ui .login-glow-one {
+  width: 760px;
+  height: 760px;
+  top: -520px;
+  left: -250px;
+}
+
+.rp-ui .login-glow-two {
+  width: 840px;
+  height: 840px;
+  right: -480px;
+  bottom: -560px;
+}
+
+.rp-ui .login-shell {
+  width: min(94vw, 900px);
+  gap: 12px;
+}
+
+.rp-ui .login-security-line,
+.rp-ui .login-footer {
+  color: #6f7778;
+  font-size: 8px;
+  letter-spacing: 0.16em;
+}
+
+.rp-ui .login-security-line span:nth-child(2) {
+  color: #a7b0b1;
+}
+
+.rp-ui .login-security-line span:last-child {
+  color: #b68d51;
+}
+
+.rp-ui .login-line {
+  background: linear-gradient(90deg, rgba(191, 151, 88, 0.62), rgba(142, 151, 153, 0.11), transparent);
+}
+
+.rp-ui .login-live-dot {
+  background: var(--rp-green);
+  box-shadow: 0 0 0 4px rgba(114, 170, 134, 0.07), 0 0 15px rgba(114, 170, 134, 0.24);
+}
+
+.rp-ui .login-card {
+  min-height: 500px;
+  display: grid;
+  grid-template-columns: minmax(250px, 0.82fr) minmax(350px, 1.18fr);
+  grid-template-rows: auto 1fr auto;
+  column-gap: 42px;
+  row-gap: 20px;
+  padding: 52px 48px 34px;
+  border: 1px solid rgba(184, 190, 190, 0.18);
+  border-radius: 9px;
+  background:
+    linear-gradient(90deg, rgba(195, 154, 89, 0.035) 1px, transparent 1px) 0 0 / 82px 100%,
+    linear-gradient(145deg, rgba(19, 23, 26, 0.97), rgba(10, 13, 15, 0.985));
+  box-shadow:
+    0 42px 130px rgba(0, 0, 0, 0.62),
+    inset 0 1px rgba(255, 255, 255, 0.024);
+  backdrop-filter: blur(22px);
+}
+
+.rp-ui .login-card::before {
+  background:
+    linear-gradient(90deg, var(--rp-accent), rgba(195, 154, 89, 0.1), transparent 58%) top / 100% 2px no-repeat,
+    linear-gradient(180deg, rgba(255,255,255,0.014), transparent 34%);
+}
+
+.rp-ui .login-card::after {
+  content: "OG LAND // RESTRICTED FACILITY NETWORK";
+  top: 17px;
+  right: 20px;
+  color: rgba(195, 154, 89, 0.44);
+  font-size: 7px;
+}
+
+.rp-ui .facility-stamp {
+  position: absolute;
+  left: 26px;
+  top: 22px;
+  display: grid;
+  color: rgba(216, 222, 220, 0.42);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  letter-spacing: 0.11em;
+  pointer-events: none;
+}
+
+.rp-ui .facility-stamp span,
+.rp-ui .facility-stamp small {
+  font-size: 6px;
+}
+
+.rp-ui .facility-stamp strong {
+  margin: 2px 0;
+  color: rgba(213, 178, 119, 0.62);
+  font-size: 9px;
+}
+
+.rp-ui .login-emblem-wrap {
+  grid-column: 1;
+  grid-row: 1;
+  width: 132px;
+  height: 132px;
+  margin: 12px 0 0;
+}
+
+.rp-ui .login-emblem {
+  width: 82px;
+  height: 96px;
+  border: 1px solid rgba(205, 174, 121, 0.7);
+  border-radius: 5px 5px 13px 13px;
+  background:
+    repeating-linear-gradient(90deg, transparent 0 10px, rgba(218, 223, 221, 0.07) 10px 12px),
+    linear-gradient(155deg, rgba(86, 76, 57, 0.38), rgba(15, 19, 21, 0.98));
+  box-shadow: inset 0 0 34px rgba(195, 154, 89, 0.05), 0 12px 30px rgba(0,0,0,0.38);
+}
+
+.rp-ui .login-emblem::before {
+  content: "BOLINGBROKE";
+  position: absolute;
+  left: 50%;
+  bottom: 12px;
+  transform: translateX(-50%);
+  color: rgba(201, 177, 137, 0.58);
+  font-size: 5px;
+  letter-spacing: 0.13em;
+}
+
+.rp-ui .login-emblem::after {
+  inset: 7px;
+  border-color: rgba(213, 185, 137, 0.17);
+  border-radius: 3px 3px 9px 9px;
+}
+
+.rp-ui .login-emblem span {
+  margin-top: -12px;
+  color: #ece7dd;
+  font-size: 18px;
+  letter-spacing: 0.12em;
+}
+
+.rp-ui .login-ring {
+  border-color: rgba(178, 185, 184, 0.14);
+  animation: none;
+}
+
+.rp-ui .ring-one {
+  inset: 8px;
+  border-style: dashed;
+  transform: rotate(12deg);
+}
+
+.rp-ui .ring-two {
+  inset: -6px;
+  border-style: solid;
+  opacity: 0.4;
+}
+
+.rp-ui .login-copy {
+  grid-column: 1;
+  grid-row: 2;
+  align-self: end;
+  text-align: left;
+}
+
+.rp-ui .login-kicker,
+.rp-ui .hack-kicker {
+  color: #b68e52;
+  font-size: 7px;
+  letter-spacing: 0.19em;
+}
+
+.rp-ui .login-copy h1 {
+  max-width: 280px;
+  margin: 8px 0 12px;
+  color: #f0f1ed;
+  font-size: clamp(32px, 5vw, 45px);
+  line-height: 0.98;
+  letter-spacing: -0.045em;
+}
+
+.rp-ui .login-copy h1 span {
+  background: none;
+  color: #bfa16e;
+  font-weight: 580;
+}
+
+.rp-ui .login-copy p {
+  max-width: 300px;
+  margin: 0;
+  color: #8a9292;
+  font-size: 11px;
+  line-height: 1.75;
+}
+
+.rp-ui .login-form {
+  grid-column: 2;
+  grid-row: 1 / 3;
+  align-self: center;
+  margin-top: 0;
+  padding: 34px 0 34px 42px;
+  border-left: 1px solid rgba(181, 188, 188, 0.12);
+}
+
+.rp-ui .login-form::before {
+  content: "SECURE PERSONNEL TERMINAL";
+  margin-bottom: 16px;
+  color: #686f70;
+  font-family: ui-monospace, monospace;
+  font-size: 7px;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+}
+
+.rp-ui .login-form > label {
+  color: #8c9494;
+  font-size: 8px;
+}
+
+.rp-ui .secret-input-wrap {
+  height: 58px;
+  border-color: rgba(164, 174, 175, 0.2);
+  border-radius: 5px;
+  background: rgba(4, 7, 8, 0.72);
+  box-shadow: inset 0 0 30px rgba(0,0,0,0.2);
+}
+
+.rp-ui .secret-input-wrap:focus-within {
+  border-color: rgba(195, 154, 89, 0.65);
+  box-shadow: 0 0 0 3px rgba(195, 154, 89, 0.055), inset 0 0 30px rgba(195, 154, 89, 0.025);
+}
+
+.rp-ui .secret-prefix {
+  color: #ad8b54;
+}
+
+.rp-ui .secret-toggle {
+  border-color: rgba(165, 175, 176, 0.15);
+  border-radius: 4px;
+  background: #15191b;
+  color: #858e8e;
+}
+
+.rp-ui .login-button {
+  height: 56px;
+  border-color: rgba(205, 168, 105, 0.54);
+  border-radius: 5px;
+  background:
+    linear-gradient(110deg, rgba(195, 154, 89, 0.18), transparent 46%),
+    #171b1d;
+  color: #eee9df;
+  box-shadow: 0 14px 32px rgba(0,0,0,0.28);
+}
+
+.rp-ui .login-button:hover:not(:disabled) {
+  border-color: rgba(219, 181, 116, 0.8);
+  background:
+    linear-gradient(110deg, rgba(195, 154, 89, 0.27), transparent 52%),
+    #1a1e20;
+  box-shadow: 0 18px 36px rgba(0,0,0,0.34), 0 0 24px rgba(195,154,89,0.035);
+}
+
+.rp-ui .login-meta {
+  grid-column: 1 / -1;
+  grid-row: 3;
+  justify-content: flex-start;
+  gap: 0;
+  margin-top: 0;
+  padding-top: 20px;
+  border-top-color: rgba(181, 188, 188, 0.1);
+  color: #707879;
+  font-family: ui-monospace, monospace;
+  font-size: 7px;
+  letter-spacing: 0.08em;
+}
+
+.rp-ui .login-meta span {
+  padding: 0 18px;
+  border-right: 1px solid rgba(179, 186, 186, 0.11);
+}
+
+.rp-ui .login-meta span:first-child {
+  padding-left: 0;
+}
+
+.rp-ui .login-meta span:last-child {
+  border-right: 0;
+}
+
+.rp-ui .login-meta i {
+  background: #b58d52;
+  box-shadow: none;
+}
+
+.rp-ui.auth-unlocking .login-card {
+  min-height: 500px;
+  display: grid;
+}
+
+.rp-ui .hack-sequence {
+  inset: 30px;
+  border-color: rgba(190, 171, 137, 0.22);
+  border-radius: 6px;
+  background:
+    repeating-linear-gradient(90deg, transparent 0 74px, rgba(188, 194, 194, 0.014) 75px 76px),
+    linear-gradient(180deg, rgba(11, 15, 16, 0.985), rgba(6, 9, 10, 0.99));
+  box-shadow: inset 0 0 70px rgba(195,154,89,0.025), 0 24px 70px rgba(0,0,0,0.38);
+}
+
+.rp-ui .hack-sequence::before {
+  opacity: 0.1;
+  background: repeating-linear-gradient(0deg, transparent 0 4px, rgba(216, 221, 219, 0.04) 5px);
+}
+
+.rp-ui .hack-status {
+  border-color: rgba(114, 170, 134, 0.26);
+  color: #88b99a;
+  background: rgba(114, 170, 134, 0.045);
+}
+
+.rp-ui .hack-terminal {
+  border-color: rgba(166, 176, 177, 0.14);
+  border-radius: 4px;
+  background: rgba(3, 6, 7, 0.72);
+}
+
+.rp-ui .hack-line {
+  color: #879091;
+}
+
+.rp-ui .hack-line.ok { color: #7fac8c; }
+.rp-ui .hack-line.accent { color: #c5a56f; text-shadow: none; }
+.rp-ui .hack-line.granted { color: #d6c19c; }
+
+.rp-ui .hack-progress-track {
+  height: 4px;
+  background: #202526;
+}
+
+.rp-ui .hack-progress-track span {
+  background: linear-gradient(90deg, #7b6746, #c39a59, #83a08b);
+  box-shadow: 0 0 12px rgba(195,154,89,0.15);
+}
+
+.rp-ui .hack-progress-row strong {
+  color: #c4a56f;
+}
+
+.rp-ui .hack-signature {
+  color: #596263;
+}
+
+/* Dashboard */
+.rp-ui.authenticated .sidebar {
+  width: 268px;
+  border-right: 1px solid rgba(176, 184, 184, 0.12);
+  background:
+    linear-gradient(180deg, rgba(23, 26, 28, 0.98), rgba(9, 12, 13, 0.995));
+  box-shadow: 24px 0 70px rgba(0,0,0,0.24);
+}
+
+.rp-ui.authenticated .main-column {
+  width: calc(100% - 268px);
+  margin-left: 268px;
+}
+
+.rp-ui.authenticated .brand {
+  height: 104px;
+  gap: 16px;
+  border-bottom-color: rgba(177, 184, 184, 0.1);
+  background:
+    linear-gradient(90deg, rgba(195, 154, 89, 0.06), transparent 72%);
+}
+
+.rp-ui.authenticated .brand-mark {
+  position: relative;
+  width: 52px;
+  height: 62px;
+  border-color: rgba(194, 164, 112, 0.48);
+  border-radius: 4px 4px 11px 11px;
+  background:
+    repeating-linear-gradient(90deg, transparent 0 7px, rgba(220,225,223,0.055) 8px 9px),
+    linear-gradient(155deg, rgba(91, 78, 55, 0.3), rgba(16, 20, 21, 0.96));
+  color: #e8e4db;
+  box-shadow: none;
+}
+
+.rp-ui.authenticated .brand-mark::after {
+  content: "BP";
+  position: absolute;
+  bottom: 7px;
+  color: rgba(194, 164, 112, 0.54);
+  font-size: 6px;
+  letter-spacing: 0.12em;
+}
+
+.rp-ui.authenticated .brand-title {
+  color: #eceeeb;
+  font-size: 26px;
+}
+
+.rp-ui.authenticated .brand-subtitle {
+  color: #8b8171;
+  font-size: 8px;
+  letter-spacing: 0.12em;
+}
+
+.rp-ui.authenticated .nav-list {
+  gap: 5px;
+  padding: 21px 14px;
+}
+
+.rp-ui.authenticated .nav-item {
+  min-height: 48px;
+  gap: 13px;
+  border-radius: 5px;
+  color: #969e9f;
+  font-weight: 650;
+}
+
+.rp-ui.authenticated .nav-icon {
+  width: 28px;
+  color: #626a6b;
+  font-family: ui-monospace, monospace;
+  font-size: 8px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+}
+
+.rp-ui.authenticated .nav-item::before {
+  top: 7px;
+  bottom: 7px;
+  width: 2px;
+  background: var(--rp-accent);
+  box-shadow: none;
+}
+
+.rp-ui.authenticated .nav-item:hover {
+  color: #d9dcd8;
+  border-color: rgba(175, 184, 184, 0.1);
+  background: rgba(255,255,255,0.025);
+}
+
+.rp-ui.authenticated .nav-item.active {
+  color: #eee9de;
+  border-color: rgba(195, 154, 89, 0.2);
+  background: linear-gradient(90deg, rgba(195, 154, 89, 0.13), rgba(195,154,89,0.015));
+  box-shadow: none;
+}
+
+.rp-ui.authenticated .nav-item.active .nav-icon {
+  color: #c6a66f;
+}
+
+.rp-ui.authenticated .week-card,
+.rp-ui.authenticated .connection-card {
+  border-color: rgba(169, 178, 179, 0.11);
+  border-radius: 5px;
+  background: rgba(255,255,255,0.018);
+}
+
+.rp-ui.authenticated .connection-card .status-dot {
+  background: #769c82;
+  box-shadow: 0 0 0 3px rgba(118,156,130,0.06);
+}
+
+.rp-ui.authenticated .topbar {
+  height: 72px;
+  padding: 0 30px;
+  border-bottom-color: rgba(177, 185, 185, 0.1);
+  background: rgba(10, 13, 14, 0.9);
+  box-shadow: 0 12px 42px rgba(0,0,0,0.1);
+  backdrop-filter: blur(20px);
+}
+
+.rp-ui.authenticated .topbar::before {
+  content: "OG LAND // BOLINGBROKE PENITENTIARY";
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  color: rgba(147, 153, 154, 0.28);
+  font-family: ui-monospace, monospace;
+  font-size: 7px;
+  letter-spacing: 0.17em;
+  pointer-events: none;
+}
+
+.rp-ui.authenticated .topbar::after {
+  background: linear-gradient(90deg, transparent, rgba(195,154,89,0.34), transparent 65%);
+}
+
+.rp-ui.authenticated .topbar-icon {
+  color: #9b835d;
+}
+
+.rp-ui.authenticated .server-avatar {
+  border-color: rgba(188, 161, 114, 0.34);
+  background-color: #171a1b;
+  color: #d2b989;
+}
+
+.rp-ui.authenticated .server-copy span {
+  color: #777f80;
+}
+
+.rp-ui.authenticated .online-pill {
+  border-color: rgba(114, 170, 134, 0.2);
+  background: rgba(114, 170, 134, 0.045);
+  color: #8eb69b;
+  box-shadow: none;
+}
+
+.rp-ui .logout-button {
+  border-color: rgba(159, 95, 101, 0.16);
+  border-radius: 4px;
+  background: rgba(130, 68, 72, 0.06);
+  color: #a37b7d;
+}
+
+.rp-ui.authenticated .content {
+  max-width: 1640px;
+  padding: 32px 34px 26px;
+}
+
+.rp-ui.authenticated .page-heading {
+  min-height: 92px;
+  align-items: flex-end;
+  margin-bottom: 24px;
+  padding: 4px 2px 18px;
+  overflow: visible;
+  border: 0;
+  border-bottom: 1px solid rgba(174, 183, 183, 0.11);
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+}
+
+.rp-ui.authenticated .page-heading::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -1px;
+  width: 78px;
+  height: 2px;
+  background: var(--rp-accent);
+}
+
+.rp-ui.authenticated .page-heading::after {
+  content: "OG LAND // BOLINGBROKE FACILITY MANAGEMENT";
+  right: 2px;
+  bottom: 20px;
+  color: rgba(173, 180, 180, 0.22);
+  font-size: 7px;
+}
+
+.rp-ui.authenticated .page-heading h1 {
+  margin: 4px 0 4px;
+  background: none;
+  -webkit-background-clip: initial;
+  color: #edf0ec;
+  font-size: 32px;
+  font-weight: 730;
+}
+
+.rp-ui.authenticated .page-heading p {
+  color: #7e8788;
+}
+
+.rp-ui.authenticated .eyebrow {
+  color: #9c825a;
+  font-size: 8px;
+  letter-spacing: 0.15em;
+}
+
+.rp-ui.authenticated .period-chip,
+.rp-ui.authenticated .count-badge {
+  border-color: rgba(173, 181, 181, 0.13);
+  border-radius: 4px;
+  background: rgba(255,255,255,0.018);
+  color: #aeb4b3;
+  box-shadow: none;
+  font-family: ui-monospace, monospace;
+  font-size: 9px;
+}
+
+.rp-ui.authenticated .stat-grid {
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.rp-ui.authenticated .stat-card {
+  min-height: 128px;
+  padding: 20px;
+  border-color: rgba(173, 181, 181, 0.11);
+  border-radius: 7px;
+  background:
+    linear-gradient(145deg, rgba(23, 27, 29, 0.94), rgba(12, 15, 17, 0.96));
+  box-shadow: 0 14px 38px rgba(0,0,0,0.13);
+}
+
+.rp-ui.authenticated .stat-card:nth-child(-n + 3) {
+  grid-column: span 2;
+}
+
+.rp-ui.authenticated .stat-card:nth-child(4),
+.rp-ui.authenticated .stat-card:nth-child(5) {
+  grid-column: span 3;
+  min-height: 108px;
+  align-items: center;
+}
+
+.rp-ui.authenticated .stat-card::after {
+  width: 0;
+  height: 0;
+}
+
+.rp-ui.authenticated .stat-card::before {
+  left: 0;
+  right: auto;
+  top: 16px;
+  bottom: 16px;
+  width: 2px;
+  height: auto;
+  opacity: 0.7;
+  background: currentColor;
+}
+
+.rp-ui.authenticated .stat-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(192, 171, 135, 0.22);
+  box-shadow: 0 18px 44px rgba(0,0,0,0.18);
+}
+
+.rp-ui.authenticated .stat-icon {
+  border-color: rgba(255,255,255,0.08);
+  border-radius: 4px;
+  background: rgba(255,255,255,0.025);
+  box-shadow: none;
+  font-family: ui-monospace, monospace;
+}
+
+.rp-ui.authenticated .stat-card.blue { color: #748f9e; }
+.rp-ui.authenticated .stat-card.green { color: #769982; }
+.rp-ui.authenticated .stat-card.purple { color: #95859b; }
+.rp-ui.authenticated .stat-card.amber { color: #b7925a; }
+.rp-ui.authenticated .stat-card.cyan { color: #81999d; }
+
+.rp-ui.authenticated .stat-content > span {
+  color: #90999a;
+  font-family: ui-monospace, monospace;
+  font-size: 9px;
+  letter-spacing: 0.07em;
+}
+
+.rp-ui.authenticated .stat-content strong {
+  color: #f0f1ed;
+  font-size: 31px;
+}
+
+.rp-ui.authenticated .stat-content small {
+  color: #686f70;
+}
+
+.rp-ui.authenticated .dashboard-grid {
+  grid-template-columns: minmax(410px, 0.88fr) minmax(520px, 1.32fr);
+  gap: 18px;
+  margin-bottom: 18px;
+}
+
+.rp-ui.authenticated .panel {
+  border-color: rgba(173, 181, 181, 0.11);
+  border-radius: 7px;
+  background: linear-gradient(160deg, rgba(19, 23, 25, 0.94), rgba(11, 14, 16, 0.97));
+  box-shadow: 0 16px 46px rgba(0,0,0,0.12);
+  backdrop-filter: none;
+}
+
+.rp-ui.authenticated .panel-header {
+  min-height: 72px;
+  border-bottom-color: rgba(173, 181, 181, 0.09);
+  background: linear-gradient(90deg, rgba(195, 154, 89, 0.035), transparent 58%);
+}
+
+.rp-ui.authenticated .panel-header h2 {
+  color: #e8eae6;
+  font-size: 16px;
+}
+
+.rp-ui.authenticated .chart-panel {
+  min-height: 380px;
+  border-top: 2px solid rgba(128, 151, 158, 0.34);
+}
+
+.rp-ui.authenticated .top-panel {
+  border-top: 2px solid rgba(195, 154, 89, 0.46);
+}
+
+.rp-ui.authenticated .recent-panel {
+  border-top: 2px solid rgba(157, 165, 165, 0.22);
+}
+
+.rp-ui.authenticated .top-panel tbody tr:nth-child(1) {
+  background: linear-gradient(90deg, rgba(195,154,89,0.09), transparent 76%);
+}
+
+.rp-ui.authenticated .top-panel tbody tr:nth-child(2) {
+  background: linear-gradient(90deg, rgba(171,181,184,0.055), transparent 76%);
+}
+
+.rp-ui.authenticated .top-panel tbody tr:nth-child(3) {
+  background: linear-gradient(90deg, rgba(144,103,69,0.055), transparent 76%);
+}
+
+.rp-ui.authenticated .top-panel tbody tr:nth-child(-n + 3) td:first-child {
+  color: #c4a56f;
+  font-family: ui-monospace, monospace;
+  font-weight: 900;
+}
+
+.rp-ui.authenticated th {
+  padding-top: 13px;
+  padding-bottom: 13px;
+  border-bottom-color: rgba(170,178,178,0.09);
+  background: rgba(4, 7, 8, 0.25);
+  color: #747d7e;
+  font-family: ui-monospace, monospace;
+  font-size: 8px;
+  letter-spacing: 0.1em;
+}
+
+.rp-ui.authenticated td {
+  padding-top: 14px;
+  padding-bottom: 14px;
+  border-bottom-color: rgba(164,173,173,0.065);
+}
+
+.rp-ui.authenticated tbody tr:hover {
+  background: rgba(255,255,255,0.022);
+}
+
+.rp-ui.authenticated .member-avatar {
+  border-color: rgba(173, 181, 181, 0.16);
+  box-shadow: none;
+}
+
+.rp-ui.authenticated .grade-pill,
+.rp-ui.authenticated .type-badge,
+.rp-ui.authenticated .status-badge {
+  border-color: rgba(173,181,181,0.11);
+  border-radius: 4px;
+  background: rgba(255,255,255,0.022);
+  backdrop-filter: none;
+}
+
+.rp-ui.authenticated .text-button,
+.rp-ui.authenticated .action-link {
+  border-color: rgba(173,181,181,0.12);
+  border-radius: 4px;
+  background: rgba(255,255,255,0.018);
+  color: #969e9f;
+}
+
+.rp-ui.authenticated .text-button:hover,
+.rp-ui.authenticated .action-link:hover {
+  color: #e2dfd7;
+  border-color: rgba(195,154,89,0.32);
+  background: rgba(195,154,89,0.06);
+}
+
+.rp-ui.authenticated .search-input,
+.rp-ui.authenticated .select-input,
+.rp-ui.authenticated .period-fields input {
+  border-color: rgba(173,181,181,0.13);
+  border-radius: 4px;
+  background: rgba(5,8,9,0.62);
+}
+
+.rp-ui.authenticated .search-input:focus,
+.rp-ui.authenticated .select-input:focus,
+.rp-ui.authenticated .period-fields input:focus {
+  border-color: rgba(195,154,89,0.54);
+  box-shadow: 0 0 0 3px rgba(195,154,89,0.045);
+}
+
+.rp-ui.authenticated .period-panel,
+.rp-ui.authenticated .mini-stat,
+.rp-ui.authenticated .system-card,
+.rp-ui.authenticated .info-grid > div {
+  border-color: rgba(173,181,181,0.11);
+  border-radius: 6px;
+  background: linear-gradient(145deg, rgba(20,24,26,0.93), rgba(11,14,16,0.96));
+}
+
+.rp-ui.authenticated .period-tab {
+  border-radius: 4px;
+}
+
+.rp-ui.authenticated .period-tab.active {
+  border-color: rgba(195,154,89,0.34);
+  background: rgba(195,154,89,0.08);
+  color: #c7a96f;
+  box-shadow: none;
+}
+
+.rp-ui.authenticated .primary-button {
+  border-color: rgba(195,154,89,0.5);
+  border-radius: 4px;
+  background: #2b2821;
+  color: #e9dfcd;
+  box-shadow: none;
+}
+
+.rp-ui.authenticated .system-card:hover {
+  transform: translateY(-1px);
+  border-color: rgba(195,154,89,0.2);
+}
+
+.rp-ui.authenticated .detail-drawer {
+  border-left-color: rgba(195,154,89,0.18);
+  background:
+    linear-gradient(180deg, rgba(195,154,89,0.035), transparent 22%),
+    #0c0f10;
+  box-shadow: -38px 0 90px rgba(0,0,0,0.48);
+}
+
+.rp-ui.authenticated .drawer-summary > div,
+.rp-ui.authenticated .drawer-field {
+  border-color: rgba(173,181,181,0.1);
+  border-radius: 5px;
+  background: rgba(255,255,255,0.018);
+}
+
+.rp-ui.authenticated .footer {
+  color: #4f5758;
+  font-size: 8px;
+  letter-spacing: 0.07em;
+}
+
+.rp-ui.authenticated .page.active {
+  animation: rpPageIn 190ms ease;
+}
+
+@keyframes rpPageIn {
+  from { opacity: 0; transform: translateY(5px); }
+  to { opacity: 1; transform: none; }
+}
+
+@media (max-width: 1080px) {
+  .rp-ui .login-card {
+    grid-template-columns: minmax(220px, 0.8fr) minmax(320px, 1.2fr);
+    column-gap: 28px;
+    padding-left: 36px;
+    padding-right: 36px;
+  }
+
+  .rp-ui .login-form {
+    padding-left: 28px;
+  }
+
+  .rp-ui.authenticated .stat-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .rp-ui.authenticated .stat-card,
+  .rp-ui.authenticated .stat-card:nth-child(-n + 3),
+  .rp-ui.authenticated .stat-card:nth-child(4),
+  .rp-ui.authenticated .stat-card:nth-child(5) {
+    grid-column: span 1;
+  }
+
+  .rp-ui.authenticated .stat-card:last-child {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 860px) {
+  .rp-ui.authenticated .sidebar {
+    width: 268px;
+  }
+
+  .rp-ui.authenticated .main-column {
+    width: 100%;
+    margin-left: 0;
+  }
+
+  .rp-ui.authenticated .topbar::before {
+    display: none;
+  }
+
+  .rp-ui.authenticated .content {
+    padding: 20px;
+  }
+
+  .rp-ui.authenticated .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 700px) {
+  .rp-ui .login-screen {
+    padding: 14px;
+  }
+
+  .rp-ui .login-shell {
+    width: min(96vw, 520px);
+  }
+
+  .rp-ui .login-card {
+    min-height: auto;
+    display: block;
+    padding: 58px 24px 26px;
+  }
+
+  .rp-ui .facility-stamp {
+    left: 20px;
+  }
+
+  .rp-ui .login-emblem-wrap {
+    margin: 0 auto 18px;
+  }
+
+  .rp-ui .login-copy {
+    text-align: center;
+  }
+
+  .rp-ui .login-copy h1,
+  .rp-ui .login-copy p {
+    max-width: none;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .rp-ui .login-form {
+    margin-top: 26px;
+    padding: 24px 0 0;
+    border-top: 1px solid rgba(181,188,188,0.1);
+    border-left: 0;
+  }
+
+  .rp-ui .login-meta {
+    margin-top: 22px;
+    flex-wrap: wrap;
+    row-gap: 9px;
+  }
+
+  .rp-ui .login-meta span {
+    padding: 0 10px;
+  }
+
+  .rp-ui.auth-unlocking .login-card {
+    min-height: 500px;
+  }
+
+  .rp-ui .hack-sequence {
+    inset: 18px;
+  }
+
+  .rp-ui.authenticated .stat-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .rp-ui.authenticated .stat-card,
+  .rp-ui.authenticated .stat-card:last-child {
+    grid-column: auto;
+  }
+
+  .rp-ui.authenticated .page-heading::after {
+    display: none;
+  }
+}
