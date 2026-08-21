@@ -82,17 +82,16 @@ async function sendStyles(response: ServerResponse): Promise<void> {
 }
 
 async function sendAppScripts(response: ServerResponse): Promise<void> {
-  const [hackerLogin, app, roleplayCopy] = await Promise.all([
+  const [hackerLogin, app] = await Promise.all([
     readFile(path.join(publicDirectory, "hacker-login.js"), "utf8"),
     readFile(path.join(publicDirectory, "app.js"), "utf8"),
-    readFile(path.join(publicDirectory, "rp-copy.js"), "utf8"),
   ]);
 
   setCommonHeaders(response);
   response.statusCode = 200;
   response.setHeader("Content-Type", "text/javascript; charset=utf-8");
   response.setHeader("Cache-Control", "no-store, no-cache, must-revalidate");
-  response.end(`${hackerLogin}\n${app}\n${roleplayCopy}`);
+  response.end(`${hackerLogin}\n${app}`);
 }
 
 async function readJsonBody(request: IncomingMessage): Promise<Record<string, unknown>> {
@@ -133,7 +132,6 @@ async function handleAuthApi(
   response: ServerResponse,
 ): Promise<boolean> {
   if (requestUrl.pathname === "/api/auth/status") {
-    // Un refresh sau o redeschidere a paginii trebuie sa ceara din nou codul.
     clearSessionCookie(response);
     sendJson(response, 200, { authenticated: false });
     return true;
