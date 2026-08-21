@@ -68,29 +68,31 @@ async function sendFile(response: ServerResponse, fileName: string): Promise<voi
 }
 
 async function sendStyles(response: ServerResponse): Promise<void> {
-  const [baseStyles, loginStyles] = await Promise.all([
+  const [baseStyles, loginStyles, roleplayTheme] = await Promise.all([
     readFile(path.join(publicDirectory, "styles.css"), "utf8"),
     readFile(path.join(publicDirectory, "login.css"), "utf8"),
+    readFile(path.join(publicDirectory, "rp-theme.css"), "utf8"),
   ]);
 
   setCommonHeaders(response);
   response.statusCode = 200;
   response.setHeader("Content-Type", "text/css; charset=utf-8");
-  response.setHeader("Cache-Control", "public, max-age=300");
-  response.end(`${baseStyles}\n${loginStyles}`);
+  response.setHeader("Cache-Control", "no-store, no-cache, must-revalidate");
+  response.end(`${baseStyles}\n${loginStyles}\n${roleplayTheme}`);
 }
 
 async function sendAppScripts(response: ServerResponse): Promise<void> {
-  const [hackerLogin, app] = await Promise.all([
+  const [hackerLogin, app, roleplayCopy] = await Promise.all([
     readFile(path.join(publicDirectory, "hacker-login.js"), "utf8"),
     readFile(path.join(publicDirectory, "app.js"), "utf8"),
+    readFile(path.join(publicDirectory, "rp-copy.js"), "utf8"),
   ]);
 
   setCommonHeaders(response);
   response.statusCode = 200;
   response.setHeader("Content-Type", "text/javascript; charset=utf-8");
   response.setHeader("Cache-Control", "no-store, no-cache, must-revalidate");
-  response.end(`${hackerLogin}\n${app}`);
+  response.end(`${hackerLogin}\n${app}\n${roleplayCopy}`);
 }
 
 async function readJsonBody(request: IncomingMessage): Promise<Record<string, unknown>> {
