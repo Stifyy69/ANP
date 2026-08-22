@@ -34,6 +34,16 @@ const reportLabels: Record<ReportType, string> = {
   carcera: "Carcera",
 };
 
+const MEMBER_SNAPSHOT_TTL_MS = 5 * 60 * 1000;
+const MEMBER_FALLBACK_TTL_MS = 30 * 1000;
+
+let memberSnapshot: {
+  guildId: string;
+  expiresAt: number;
+  members: Map<string, GuildMember>;
+} | null = null;
+let memberSnapshotPromise: Promise<Map<string, GuildMember>> | null = null;
+
 function emptyStats(userId: string): AgentStats {
   return {
     userId,
@@ -52,6 +62,59 @@ function createMemberMap(members: Iterable<GuildMember>): Map<string, GuildMembe
   }
 
   return result;
+}
+
+function storeMemberSnapshot(
+  guild: Guild,
+  members: Iterable<GuildMember>,
+  ttlMs: number,
+): Map<string, GuildMember> {
+  const snapshot = createMemberMap(members);
+  memberSnapshot = {
+    guildId: guild.id,
+    expiresAt: Date.now() + ttlMs,
+    members: snapshot,
+  };
+  return snapshot;
+}
+
+async function getGuildMembers(guild: Guild): Promise<Map<string, GuildMember>> {
+  const now = Date.now();
+
+  if (
+    memberSnapshot
+    && memberSnapshot.guildId === guild.id
+    && memberSnapshot.expiresAt > now
+  ) {
+    return memberSnapshot.members;
+  }
+
+  if (guild.members.cache.size > 0 && guild.members.cache.size >= guild.memberCount) {
+    return storeMemberSnapshot(guild, guild.members.cache.values(), MEMBER_SNAPSHOT_TTL_MS);
+  }
+
+  if (memberSnapshotPromise) {
+    return memberSnapshotPromise;
+  }
+
+  memberSnapshotPromise = (async () => {
+    try {
+      const fetched = await guild.members.fetch();
+      return storeMemberSnapshot(guild, fetched.values(), MEMBER_SNAPSHOT_TTL_MS);
+    } catch (error) {
+      if (guild.members.cache.size > 0) {
+        const message = error instanceof Error ? error.message : String(error);
+        console.warn(`Discord members fetch limitat, folosesc cache-ul local temporar: ${message}`);
+        return storeMemberSnapshot(guild, guild.members.cache.values(), MEMBER_FALLBACK_TTL_MS);
+      }
+
+      throw error;
+    } finally {
+      memberSnapshotPromise = null;
+    }
+  })();
+
+  return memberSnapshotPromise;
 }
 
 async function getGuild(client: Client<true>): Promise<Guild> {
@@ -149,15 +212,14 @@ function serializeAgent(
 
 export async function getDashboardData(client: Client<true>) {
   const guild = await getGuild(client);
-  const [membersCollection, week, totals, stats, daily, storedReports] = await Promise.all([
-    guild.members.fetch(),
+  const [members, week, totals, stats, daily, storedReports] = await Promise.all([
+    getGuildMembers(guild),
     getCurrentWeekInfo(),
     getReportTotalsForPeriod({ type: "current_week" }),
     getAgentStatsForPeriod({ type: "current_week" }),
     getCurrentWeekDailyActivity(),
     getStoredReports({ limit: 8 }),
   ]);
-  const members = createMemberMap(membersCollection.values());
   const humans = [...members.values()].filter((member) => !member.user.bot);
   const activeAgentIds = new Set(stats.filter((agent) => agent.total > 0).map((agent) => agent.userId));
   const activeAgents = humans.filter((member) => activeAgentIds.has(member.id)).length;
@@ -188,21 +250,21 @@ export async function getDashboardData(client: Client<true>) {
 
 export async function getMembersData(client: Client<true>, period: StatsPeriod) {
   const guild = await getGuild(client);
-  const [membersCollection, stats] = await Promise.all([
-    guild.members.fetch(),
+  const [memberMap, stats] = await Promise.all([
+    getGuildMembers(guild),
     getAgentStatsForPeriod(period),
   ]);
   const statsMap = new Map<string, AgentStats>(
     stats.map((agent) => [agent.userId, agent] as const),
   );
-  const members = [...membersCollection.values()]
+  const members = [...memberMap.values()]
     .filter((member) => !member.user.bot)
     .filter((member) => getGradeRole(member) !== null || (statsMap.get(member.id)?.total ?? 0) > 0)
     .map((member) => {
       const agentStats = statsMap.get(member.id) ?? emptyStats(member.id);
-      const memberMap = new Map<string, GuildMember>([[member.id, member]]);
+      const singleMemberMap = new Map<string, GuildMember>([[member.id, member]]);
 
-      return serializeAgent(agentStats, memberMap);
+      return serializeAgent(agentStats, singleMemberMap);
     })
     .sort((a, b) =>
       b.stats.total - a.stats.total
@@ -221,21 +283,21 @@ export async function getMembersData(client: Client<true>, period: StatsPeriod) 
 
 export async function getReportsData(client: Client<true>, period: StatsPeriod) {
   const guild = await getGuild(client);
-  const [membersCollection, stats, totals] = await Promise.all([
-    guild.members.fetch(),
+  const [memberMap, stats, totals] = await Promise.all([
+    getGuildMembers(guild),
     getAgentStatsForPeriod(period),
     getReportTotalsForPeriod(period),
   ]);
   const statsMap = new Map<string, AgentStats>(
     stats.map((agent) => [agent.userId, agent] as const),
   );
-  const members = [...membersCollection.values()]
+  const members = [...memberMap.values()]
     .filter((member) => !member.user.bot)
     .map((member) => {
       const agentStats = statsMap.get(member.id) ?? emptyStats(member.id);
-      const memberMap = new Map<string, GuildMember>([[member.id, member]]);
+      const singleMemberMap = new Map<string, GuildMember>([[member.id, member]]);
 
-      return serializeAgent(agentStats, memberMap);
+      return serializeAgent(agentStats, singleMemberMap);
     })
     .sort((a, b) =>
       b.stats.total - a.stats.total
@@ -258,11 +320,10 @@ export async function getDossiersData(
   reportType?: ReportType,
 ) {
   const guild = await getGuild(client);
-  const [membersCollection, reports] = await Promise.all([
-    guild.members.fetch(),
+  const [members, reports] = await Promise.all([
+    getGuildMembers(guild),
     getStoredReports({ reportType, limit: 250 }),
   ]);
-  const members = createMemberMap(membersCollection.values());
 
   return {
     dossiers: reports.map((report) => serializeReport(
@@ -287,8 +348,7 @@ export async function getDossierDetails(
   }
 
   const guild = await getGuild(client);
-  const membersCollection = await guild.members.fetch();
-  const members = createMemberMap(membersCollection.values());
+  const members = await getGuildMembers(guild);
   const channel = await client.channels.fetch(reportChannelIds[report.reportType]).catch(() => null);
   const message = channel && channel.type === ChannelType.GuildText
     ? await channel.messages.fetch(report.messageId).catch(() => null)
@@ -310,11 +370,11 @@ export async function getDossierDetails(
 
 export async function getSystemData(client: Client<true>) {
   const guild = await getGuild(client);
-  const [membersCollection, databaseOnline] = await Promise.all([
-    guild.members.fetch(),
+  const [members, databaseOnline] = await Promise.all([
+    getGuildMembers(guild),
     pingDatabase(),
   ]);
-  const humans = [...membersCollection.values()].filter((member) => !member.user.bot);
+  const humans = [...members.values()].filter((member) => !member.user.bot);
   const configuredAgents = humans.filter((member) => getGradeRole(member) !== null).length;
 
   return {
