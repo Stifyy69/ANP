@@ -33,12 +33,12 @@
 
         <div class="login-copy">
           <span class="login-kicker">OG LAND CORRECTIONAL NETWORK</span>
-          <h1>ANP Secure <span>Access</span></h1>
-          <p>Portal intern Bolingbroke. Acces rezervat personalului ANP autorizat din OG LAND.</p>
+          <h1>ANP <span>Secure Access</span></h1>
+          <p>Sistemul central de management Bolingbroke. Acces rezervat exclusiv personalului ANP autorizat.</p>
         </div>
 
         <form class="login-form" id="login-form" autocomplete="off">
-          <label for="login-code">Cod de autorizare ANP</label>
+          <label for="login-code">ANP Authorization Code</label>
           <div class="secret-input-wrap">
             <span class="secret-prefix">//</span>
             <input
@@ -69,7 +69,7 @@
 
       <div class="login-footer">
         <span>OG LAND // ADMINISTRATIA NATIONALA A PENITENCIARELOR</span>
-        <span>BOLINGBROKE // INTERNAL ACCESS</span>
+        <span>RESTRICTED FACILITY ACCESS</span>
       </div>
     </div>
   </section>
@@ -115,7 +115,7 @@
         <div class="connection-card">
           <span class="status-dot"></span>
           <div>
-            <strong id="sidebar-guild">Discord ANP</strong>
+            <strong id="sidebar-guild">ANP Network</strong>
             <span>Legatura operationala</span>
           </div>
         </div>
@@ -126,7 +126,6 @@
       <header class="topbar">
         <button type="button" class="mobile-menu" id="mobile-menu" aria-label="Deschide meniul">☰</button>
         <div class="topbar-title">
-          <span class="topbar-icon">▣</span>
           <strong id="topbar-page">Dashboard</strong>
         </div>
         <div class="topbar-server">
@@ -135,8 +134,8 @@
             <strong id="server-name">ANP</strong>
             <span>Bolingbroke Penitentiary</span>
           </div>
-          <span class="online-pill">OPERATIV</span>
-          <button class="logout-button" id="logout-button" type="button">Iesire</button>
+          <span class="online-pill">OPERATIONAL</span>
+          <button class="logout-button" id="logout-button" type="button">IESIRE</button>
         </div>
       </header>
 
@@ -153,7 +152,7 @@
 
           <div class="stat-grid">
             <article class="stat-card blue">
-              <div class="stat-icon">T</div>
+              <div class="stat-icon">TRN</div>
               <div class="stat-content">
                 <span>TRANSPORTURI</span>
                 <strong id="stat-transport">0</strong>
@@ -161,7 +160,7 @@
               </div>
             </article>
             <article class="stat-card green">
-              <div class="stat-icon">V</div>
+              <div class="stat-icon">VIS</div>
               <div class="stat-content">
                 <span>VIZITE</span>
                 <strong id="stat-vizite">0</strong>
@@ -169,7 +168,7 @@
               </div>
             </article>
             <article class="stat-card purple">
-              <div class="stat-icon">C</div>
+              <div class="stat-icon">CRC</div>
               <div class="stat-content">
                 <span>CARCERA</span>
                 <strong id="stat-carcera">0</strong>
@@ -177,7 +176,7 @@
               </div>
             </article>
             <article class="stat-card amber">
-              <div class="stat-icon">#</div>
+              <div class="stat-icon">ACT</div>
               <div class="stat-content">
                 <span>TOTAL DOSARE</span>
                 <strong id="stat-total">0</strong>
@@ -185,7 +184,7 @@
               </div>
             </article>
             <article class="stat-card cyan">
-              <div class="stat-icon">A</div>
+              <div class="stat-icon">OPS</div>
               <div class="stat-content">
                 <span>AGENTI ACTIVI</span>
                 <strong id="stat-active">0</strong>
@@ -203,22 +202,8 @@
                 </div>
                 <button type="button" class="text-button" data-go="reports">Vezi tot</button>
               </div>
-              <div class="table-wrap compact-table">
-                <table>
-                  <thead>
-                    <tr>
-                      <th>#</th>
-                      <th>Membru</th>
-                      <th>T</th>
-                      <th>V</th>
-                      <th>C</th>
-                      <th>Total</th>
-                    </tr>
-                  </thead>
-                  <tbody id="dashboard-top-body">
-                    <tr><td colspan="6" class="empty-cell">Se incarca...</td></tr>
-                  </tbody>
-                </table>
+              <div class="leaderboard" id="dashboard-top-body">
+                <div class="empty-cell">Se incarca...</div>
               </div>
             </article>
 
@@ -436,37 +421,37 @@
 
           <div class="system-grid">
             <article class="system-card">
-              <span class="system-icon green-ring">●</span>
-              <div><span>Retea ANP</span><strong id="system-bot-status">Se verifica...</strong></div>
+              <span class="system-icon green-ring">NWT</span>
+              <div><span>ANP Network</span><strong id="system-bot-status">Se verifica...</strong></div>
             </article>
             <article class="system-card">
-              <span class="system-icon blue-ring">DB</span>
-              <div><span>Arhiva centrala</span><strong id="system-db-status">Se verifica...</strong></div>
+              <span class="system-icon blue-ring">ARC</span>
+              <div><span>Central Archive</span><strong id="system-db-status">Se verifica...</strong></div>
             </article>
             <article class="system-card">
-              <span class="system-icon purple-ring">UP</span>
-              <div><span>Timp operare</span><strong id="system-uptime">-</strong></div>
+              <span class="system-icon purple-ring">TIM</span>
+              <div><span>Operational Time</span><strong id="system-uptime">-</strong></div>
             </article>
             <article class="system-card">
-              <span class="system-icon amber-ring">ANP</span>
-              <div><span>Agenti inregistrati</span><strong id="system-agents">0</strong></div>
+              <span class="system-icon amber-ring">PER</span>
+              <div><span>Registered Personnel</span><strong id="system-agents">0</strong></div>
             </article>
           </div>
 
           <article class="panel system-details">
             <div class="panel-header">
               <div>
-                <span class="eyebrow">INFORMATII</span>
-                <h2>Instanta curenta</h2>
+                <span class="eyebrow">FACILITY CONTROL</span>
+                <h2>Bolingbroke Central System</h2>
               </div>
             </div>
             <div class="info-grid">
-              <div><span>Centru operational</span><strong id="system-guild">-</strong></div>
-              <div><span>Unitate ANP</span><strong id="system-bot">-</strong></div>
-              <div><span>Personal prezent</span><strong id="system-members">-</strong></div>
-              <div><span>Canale operative</span><strong id="system-channels">-</strong></div>
-              <div><span>Versiune terminal</span><strong id="system-version">-</strong></div>
-              <div><span>Nivel acces</span><strong>ANP MANAGEMENT CLEARANCE</strong></div>
+              <div><span>Facility Control</span><strong id="system-guild">-</strong></div>
+              <div><span>ANP Network</span><strong id="system-bot">-</strong></div>
+              <div><span>Registered Personnel</span><strong id="system-members">-</strong></div>
+              <div><span>Operational Channels</span><strong id="system-channels">-</strong></div>
+              <div><span>Terminal Version</span><strong id="system-version">-</strong></div>
+              <div><span>Access Clearance</span><strong>ANP MANAGEMENT CLEARANCE</strong></div>
             </div>
           </article>
         </section>
@@ -494,6 +479,6 @@
   </aside>
 
   <div class="toast" id="toast"></div>
-  <script src="/app.js?v=rp-pages-fix-1" defer></script>
+  <script src="/app.js?v=anp-overhaul-1" defer></script>
 </body>
 </html>

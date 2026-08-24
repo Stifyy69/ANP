@@ -68,17 +68,13 @@ async function sendFile(response: ServerResponse, fileName: string): Promise<voi
 }
 
 async function sendStyles(response: ServerResponse): Promise<void> {
-  const [baseStyles, loginStyles, roleplayTheme] = await Promise.all([
-    readFile(path.join(publicDirectory, "styles.css"), "utf8"),
-    readFile(path.join(publicDirectory, "login.css"), "utf8"),
-    readFile(path.join(publicDirectory, "rp-theme.css"), "utf8"),
-  ]);
+  const institutionalTheme = await readFile(path.join(publicDirectory, "institutional.css"), "utf8");
 
   setCommonHeaders(response);
   response.statusCode = 200;
   response.setHeader("Content-Type", "text/css; charset=utf-8");
   response.setHeader("Cache-Control", "no-store, no-cache, must-revalidate");
-  response.end(`${baseStyles}\n${loginStyles}\n${roleplayTheme}`);
+  response.end(institutionalTheme);
 }
 
 async function sendAppScripts(response: ServerResponse): Promise<void> {

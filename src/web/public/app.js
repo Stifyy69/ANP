@@ -186,19 +186,25 @@ function renderDashboardTop(agents) {
   const body = $("dashboard-top-body");
 
   if (!agents.length) {
-    body.innerHTML = '<tr><td colspan="6" class="empty-cell">Nu exista activitate in saptamana curenta.</td></tr>';
+    body.innerHTML = '<div class="empty-cell">Nu exista activitate in saptamana curenta.</div>';
     return;
   }
 
   body.innerHTML = agents.map((agent, index) => `
-    <tr>
-      <td>${index + 1}</td>
-      <td>${memberCell(agent)}</td>
-      <td class="metric-t">${agent.stats.transporturi}</td>
-      <td class="metric-v">${agent.stats.vizite}</td>
-      <td class="metric-c">${agent.stats.carcera}</td>
-      <td class="metric-total">${agent.stats.total}</td>
-    </tr>
+    <article class="leaderboard-entry rank-${index + 1}">
+      <div class="rank-mark"><span>0${index + 1}</span></div>
+      ${memberAvatar(agent)}
+      <div class="leaderboard-identity">
+        <strong>${escapeHtml(agent.displayName ?? "Necunoscut")}</strong>
+        <span>${escapeHtml(agent.gradeName ?? "Fara grad ANP")}</span>
+      </div>
+      <div class="leaderboard-breakdown">
+        <span><i>TRN</i>${agent.stats.transporturi}</span>
+        <span><i>VIS</i>${agent.stats.vizite}</span>
+        <span><i>CRC</i>${agent.stats.carcera}</span>
+      </div>
+      <div class="leaderboard-total"><strong>${agent.stats.total}</strong><span>total</span></div>
+    </article>
   `).join("");
 }
 
@@ -216,9 +222,9 @@ function renderActivityChart(days) {
   const xFor = (index) => padding.left + (days.length <= 1 ? plotWidth / 2 : (index / (days.length - 1)) * plotWidth);
   const yFor = (value) => padding.top + plotHeight - (value / niceMax) * plotHeight;
   const colors = {
-    transporturi: "#4d9dff",
-    vizite: "#4ed47a",
-    carcera: "#b56cff",
+    transporturi: "#b79a68",
+    vizite: "#6f947e",
+    carcera: "#9b5d5d",
   };
 
   const grid = Array.from({ length: tickCount + 1 }, (_, index) => {

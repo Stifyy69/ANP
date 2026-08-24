@@ -20,9 +20,9 @@ function createHackSequence() {
     <div class="hack-head">
       <div>
         <span class="hack-kicker">OG LAND // BOLINGBROKE</span>
-        <strong>ANP SECURE ACCESS PROTOCOL</strong>
+        <strong>ANP SECURE WEBSITE</strong>
       </div>
-      <span class="hack-status">AUTHORIZED NODE</span>
+      <span class="hack-status">MANAGEMENT CLEARANCE</span>
     </div>
     <div class="hack-terminal" id="hack-terminal" aria-live="polite"></div>
     <div class="hack-progress-row">
@@ -103,14 +103,14 @@ async function runHackSequence() {
   animationFrame = requestAnimationFrame(animateProgress);
 
   const events = [
-    [0, "> opening ANP secure website...", "normal"],
-    [620, "[OK] personnel access credential accepted", "ok"],
-    [1250, "[OK] OG LAND correctional network reached", "ok"],
-    [2050, "[OK] Bolingbroke central registry connected", "ok"],
-    [2850, "[OK] operational archives synchronized", "ok"],
-    [3550, "[OK] prison command services available", "ok"],
-    [4200, "[OK] clearance level: ANP MANAGEMENT", "accent"],
-    [4580, "> opening Bolingbroke command center...", "normal"],
+    [0, "OPENING ANP SECURE WEBSITE", "normal"],
+    [620, "VERIFYING PERSONNEL AUTHORIZATION", "ok"],
+    [1250, "OG LAND CORRECTIONAL NETWORK CONNECTED", "ok"],
+    [2050, "BOLINGBROKE CENTRAL REGISTRY AVAILABLE", "ok"],
+    [2850, "SECURE ARCHIVES SYNCHRONIZED", "ok"],
+    [3550, "MANAGEMENT CLEARANCE CONFIRMED", "accent"],
+    [4200, "OPENING BOLINGBROKE COMMAND CENTER", "normal"],
+    [4580, "ACCESS GRANTED", "granted"],
   ];
 
   let elapsed = 0;
@@ -134,7 +134,7 @@ async function runHackSequence() {
     progressValue.textContent = "100%";
   }
 
-  addTerminalLine("ACCESS GRANTED // WELCOME TO BOLINGBROKE", "granted");
+  addTerminalLine("BOLINGBROKE COMMAND CENTER AVAILABLE", "granted");
   document.body.classList.add("auth-granted");
   await sleep(FINAL_GRANT_MS);
 
