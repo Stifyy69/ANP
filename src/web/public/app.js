@@ -222,9 +222,9 @@ function renderActivityChart(days) {
   const xFor = (index) => padding.left + (days.length <= 1 ? plotWidth / 2 : (index / (days.length - 1)) * plotWidth);
   const yFor = (value) => padding.top + plotHeight - (value / niceMax) * plotHeight;
   const colors = {
-    transporturi: "#b79a68",
-    vizite: "#6f947e",
-    carcera: "#9b5d5d",
+    transporturi: "#f0c94f",
+    vizite: "#4ea1ff",
+    carcera: "#8cb9e8",
   };
 
   const grid = Array.from({ length: tickCount + 1 }, (_, index) => {
